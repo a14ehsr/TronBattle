@@ -1,0 +1,5 @@
+numberOfPlayers 2
+numberOfGames 30
+numberOfSelectNodes 7
+outputlevel 2
+timelimit 1000
