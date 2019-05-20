@@ -1,5 +1,10 @@
 package ac.a14ehsr.platform;
 
+import java.awt.List;
+import java.util.Arrays;
+
+import ac.a14ehsr.platform.visualizer.Visualizer;
+
 public class TronGame {
     Process[] processes;
     InputStream[] inputStreams;
@@ -67,164 +72,140 @@ public class TronGame {
             patternSize *= i;
         }
 
+        // send information of game
         for (int p = 0; p < numberOfPlayers; p++) {
             outputStreams[p].write((numberOfPlayers + "\n").getBytes());
             outputStreams[p].write((numberOfGames + "\n").getBytes());
-            outputStreams[p].write((numberOfSelectNodes + "\n").getBytes());
-            outputStreams[p].write((patternSize + "\n").getBytes());
             outputStreams[p].write((p + "\n").getBytes()); // player code
             outputStreams[p].flush();
             names[p] = bufferedReaders[p].readLine();
         }
 
         if (outputLevel > 0) {
-            System.out.print("players  : ");
-            for (String name : names)
-                System.out.printf(name + " ");
-            System.out.println();
+            System.out.println("players  : " + String.join(" vs ",names));
         }
 
         outputStr = new String[numberOfPlayers];
-        // 利得のレコード
-        int[][][] gainRecord = new int[numberOfGames][patternSize][numberOfPlayers];
 
         // 各プレイヤーの勝利数
         int[] playerPoints = new int[numberOfPlayers];
 
-        // ゲームレコードの準備(初期値-1)
-        int[][][][] gameRecord = new int[numberOfGames][][][];
-
-        // プレイヤーの手番の管理用リスト．線形リストで十分．
-        List<int[]> sequenceList = new ArrayList<>();
-        sequenceList = Permutation.of(numberOfPlayers);
+        Boad boad = new Boad();
         // numberOfGames回対戦
         for (int i = 0; i < numberOfGames; i++) {
-            graph = new GridGraph(10, 10);
-            if (outputLevel >= 3) {
-                graph.printWeight();
-            }
-            gameRecord[i] = new int[sequenceList.size()][graph.getNumberOfNodes()][2];
-            for (int[][] sequenceRecord : gameRecord[i]) {
-                for (int[] nodeInfo : sequenceRecord) {
-                    Arrays.fill(nodeInfo, -1);
-                }
-            }
+            // 盤面の初期化とデータ渡し
+            int[][] nowPosition = boad.initilize();
 
-            for (int p = 0; p < numberOfPlayers; p++) {
-                outputStreams[p].write((graph.toString()).getBytes()); // graph情報
+            List<Integer> alivePlayers = new ArrayList<>();
+            for(int p = 0; p < numberOfPlayers; p++) {
+                for(int k = 0; k < numberOfPlayers; k++) {
+                    outputStreams[p].write((nowPosition[k][0] + "\n").getBytes()); // 初期座標を渡す
+                    outputStreams[p].write((nowPosition[k][1] + "\n").getBytes()); // 初期座標を渡す
+                }
                 outputStreams[p].flush();
-
+                alivePlayers.add(p);
             }
-            for (int s = 0; s < sequenceList.size(); s++) {
 
-                int[] sequence = sequenceList.get(s);
-                for (int p = 0; p < numberOfPlayers; p++) {
-                    for (int num : sequence) {
-                        outputStreams[p].write((num + "\n").getBytes()); // graph情報
-                        outputStreams[p].flush();
+            Visualizer visualizer = null;
+            if (isVisible) {
+                visualizer = new Visualizer(width, height);
+            }
+
+            int turn = 0;
+            int[] numberOfTurn = new int[numberOfPlayers]; // 各playerが何ターン生きたか
+            List<Integer> deadList = new ArrayList<>();
+            while(numberOfPlayers == 1 || alivePlayers.size() > 1) {
+                for(int p = 0; p < numberOfPlayers; p++) {
+                    if(!boad.isAlive(p)){
+                        continue;
                     }
-                }
-                GraphDrawing gui = null;
-                if (isVisible) {
-                    gui = new GraphDrawing(10, 10, graph.getNodeWeight(), names);
-                }
-
-                // 選択するノード数分のループ
-                for (int j = 0; j < numberOfSelectNodes; j++) {
-                    // 各プレイヤーのループ
-                    for (int p : sequence) {
-                        // それぞれの数字を取得
-                        if (!processes[p].isAlive())
-                            throw new IOException("次のプレイヤーのサブプロセスが停止しました :" + names[p]);
-                        Thread thread = new GetResponseThread(p);
-                        thread.start();
-                        long start = System.nanoTime();
-                        try {
-                            thread.join(timeOut);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        long calculateTime = System.nanoTime() - start;
-                        if (outputStr[p] == null)
-                            throw new TimeoutException("一定時間以内に次のプレイヤーから値を取得できませんでした :" + names[p]);
-
-                        int num;
-                        try {
-                            num = Integer.parseInt(outputStr[p]);
-                            outputStr[p] = null;
-                        } catch (NumberFormatException e) {
-                            throw new NumberFormatException(
-                                    "次のプレイヤーから整数以外の値を取得しました :" + names[p] + " :" + outputStr[p]);
-                        }
-                        gain(p, num, gameRecord[i][s], names[p], calculateTime);
-
-                        gameRecord[i][s][num][1] = j;
-                        for (int pp : sequence) {
-                            if (pp == p)
-                                continue;
-                            outputStreams[pp].write((num + "\n").getBytes());
-                            outputStreams[pp].flush();
-                        }
-                        if (isVisible) {
-                            gui.setColor(num / 10, num % 10, p);
-                            try {
-                                Thread.sleep(100);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-                    }
-
-                }
-
-                if (outputLevel >= 3) {
-                    for (int a = 0; a < 10; a++) {
-                        for (int b = 0; b < 10; b++) {
-                            System.out.printf("%2d ", gameRecord[i][s][a * 10 + b][0]);
-                        }
-                        System.out.println();
-                    }
-                }
-
-                // 勝ち点の計算
-                int[] gainNodeInfo = new int[gameRecord[i][s].length];
-                for (int t = 0; t < gainNodeInfo.length; t++) {
-                    gainNodeInfo[t] = gameRecord[i][s][t][0];
-                }
-                gainRecord[i][s] = graph.evaluate(gainNodeInfo, numberOfPlayers, numberOfSelectNodes);
-                int[] gamePoint = calcPoint(gainRecord[i][s]);
-                if (outputLevel >= 2) {
-                    System.out.printf("%2dゲーム，順列種%2d番の利得 (", i, s);
-                    for (int a = 0; a < numberOfPlayers; a++) {
-                        System.out.print("["+sequence[a]+"]"+names[a] + " ");
-                    }
-                    
-                    System.out.print(") = ");
-                    for (int num : gainRecord[i][s]) {
-                        System.out.printf("%3d ", num);
-                    }
-                    System.out.print(" | 点数: ");
-                    for (int num : gamePoint) {
-                        System.out.printf("%3d ", num);
-                    }
-                    System.out.println();
-
-                }
-                for (int t = 0; t < numberOfPlayers; t++) {
-                    playerPoints[t] += gamePoint[t];
-                }
-                if (isVisible) {
-                    gui.setColor(graph.getPlaneGain());
+                    if (!processes[p].isAlive())
+                        throw new IOException("次のプレイヤーのサブプロセスが停止しました :" + names[p]);
+                    Thread thread = new GetResponseThread(p);
+                    thread.start();
+                    long start = System.nanoTime();
                     try {
-                        Thread.sleep(500);
-                    } catch (Exception e) {
+                        thread.join(timeOut);
+                    } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    gui.dispose();
+                    long calculateTime = System.nanoTime() - start;
+                    // TODO: tyimoutしたプレイヤーをkillしてむりやりすすめる
+                    if (outputStr[p] == null)
+                        throw new TimeoutException("一定時間以内に次のプレイヤーから値を取得できませんでした :" + names[p]);
+
+                    int num;
+                    try {
+                        num = Integer.parseInt(outputStr[p]);
+                        outputStr[p] = null;
+                    } catch (NumberFormatException e) {
+                        throw new NumberFormatException(
+                            // TODO: プレイヤーをkillしてむりやりすすめる
+                            "次のプレイヤーから整数以外の値を取得しました :" + names[p] + " :" + outputStr[p]);
+                    }
+                    boolean accept = boad.move(p, num, calculateTime, names[p]);
+
+                    if(!accept) {
+                        numberOfTurn[p] = turn;
+                        num = 0;
+                    }
+
+                    for(int k : alivePlayers) {
+                        outputStreams[k].write((num + "\n").getBytes()); // 移動情報をoutput
+                        outputStreams[k].flush();
+                    }
+
+                    if(!accept) {
+                        deadList.add(alivePlayers.remove(Integer.valueOf(p)));
+                    }
+                    
+                    
+                    if (isVisible) {
+                        // TODO: 処理
+                        try {
+                            Thread.sleep(10);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    if(outputLevel >= 3) {
+                        boad.show();
+                    }
                 }
+
+                if(numberOfPlayers == 1 && alivePlayers.size() == 0){
+                    break;
+                }
+                turn++;
             }
 
+            // 勝ち点の計算
+            int[] point = calcPoint(deadList);
+            if (outputLevel >= 2) {
+                System.out.printf("%第2dゲームの利得: ",i);
+                for (int k = 0; k < numberOfPlayers; k++) {
+                    System.out.print(names[k] + " ");
+                }
+                System.out.print(" | ");
+
+                for (int k = 0; k < numberOfPlayers; k++) {
+                    System.out.printf("%3d ",numberOfTurn[k]);
+                }
+
+                System.out.print(" | 点数: ");
+                for (int k = 0; k < numberOfPlayers; k++) {
+                    System.out.printf("%2d ",point[k]);
+                }
+                System.out.println();
+
+            }
+            for (int t = 0; t < numberOfPlayers; t++) {
+                playerPoints[t] += point[t];
+            }
+            if (isVisible) {
+                gui.dispose();
+            }
         }
         if (outputLevel > 0) {
             System.out.print("勝ち点合計:");
@@ -236,4 +217,150 @@ public class TronGame {
         return new Result(names, playerPoints);
     }
 
+    private int[] calcPoint(List<Integer> deadList, List<Integer> aliveList, int turn) {
+        if(numberOfPlayers > 1) {
+            int[] score = new int[numberOfPlayers];
+            int point = 0;
+            for(int p : deadList) {
+                score[p] = point++;
+            }
+            score[aliveList.get(0)] = point;
+            return score;
+        } else {
+            return new int[]{turn};
+        }
+    }
+
+    /**
+     * タイムアウト発生時に投げる例外クラス
+     */
+    class TimeoutException extends Exception {
+        /**
+         * コンストラクタ
+         * 
+         * @param mes メッセージ
+         */
+        TimeoutException(String mes) {
+            super(mes);
+        }
+    }
+
+    /**
+     * 数値の取得用Thread
+     */
+    class GetResponseThread extends Thread {
+        private int index;
+
+        GetResponseThread(int index) {
+            this.index = index;
+        }
+
+        public void run() {
+            try {
+                getOutput(index);
+            } catch (IOException e) {
+                e.printStackTrace();
+                // outputException = e;
+            }
+        }
+    }
+
+        /**
+     * リザルト用のEntity
+     */
+    class Result {
+        String[] names;
+        int[] playerPoints;
+        int[] playerID;
+        int[] rank;
+        boolean isNoContest;
+
+        Result(String[] names, int[] playerPoints) {
+            this.names = names;
+            this.playerPoints = playerPoints;
+            rank = new int[names.length];
+            setRank();
+            isNoContest = false;
+        }
+
+        Result(int[] id) {
+            playerID = new int[id.length];
+            for (int i = 0; i < id.length; i++) {
+                playerID[i] = id[i];
+            }
+            isNoContest = true;
+        }
+
+        void setPlayerID(int[] id) {
+            playerID = new int[id.length];
+            for (int i = 0; i < id.length; i++) {
+                playerID[i] = id[i];
+            }
+        }
+
+        /**
+         * ランク情報をセットする
+         * 任意のプレイヤー人数に対応済み
+         */
+        void setRank() {
+            // プレイヤーIDと特典をペアにして特典順にソート
+            List<NumberPair> dict = new ArrayList<>();
+            for (int i = 0; i < names.length; i++) {
+                dict.add(new NumberPair(i, playerPoints[i]));
+            }
+            dict.sort((a, b) -> b.num - a.num);
+
+            int beforeNum = dict.get(0).num;
+            int index = 0;
+            NumberPair numpair = dict.get(0);
+            // 初期化時点で0なので以下の処理は暗黙のうちに行われている.
+            //rank[numpair.key] = 0;
+
+            // 特典順に見て，同じ値の時は同じ順位をつけていく．
+            for (int i = 1; i < numberOfPlayers; i++) {
+                numpair = dict.get(i);
+                if (beforeNum != numpair.num) {
+                    beforeNum = numpair.num;
+                    index = i;
+                }
+                rank[numpair.key] = index;
+            }
+        }
+    }
+}
+
+
+/**
+ * エラー出力のReader
+ */
+class ErrorReader extends Thread {
+    InputStream error;
+
+    public ErrorReader(InputStream is) {
+        error = is;
+    }
+
+    public void run() {
+        try {
+            byte[] ch = new byte[50000];
+            int read;
+            while ((read = error.read(ch)) > 0) {
+                String s = new String(ch, 0, read);
+                System.out.print(s);
+                System.out.flush();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+class NumberPair {
+    int key;
+    int num;
+
+    NumberPair(int key, int num) {
+        this.key = key;
+        this.num = num;
+    }
 }
