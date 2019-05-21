@@ -1,9 +1,16 @@
 package ac.a14ehsr.platform;
 
-import java.awt.List;
-import java.util.Arrays;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
+import ac.a14ehsr.platform.setting.Setting;
 import ac.a14ehsr.platform.visualizer.Visualizer;
+
 
 public class TronGame {
     Process[] processes;
@@ -57,14 +64,17 @@ public class TronGame {
      * @throws AgainstTheRulesException
      * @throws NumberFormatException
      */
-    private Result run() throws IOException, AgainstTheRulesException, NumberFormatException, TimeoutException {
+    private Result run() throws IOException, NumberFormatException, TimeoutException {
         try {
             Thread.sleep(100);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        int numberOfPlayers = setting.getNnumberOfPlayers();
+        int numberOfPlayers = setting.getNumberOfPlayers();
         int numberOfGames = setting.getNumberOfGames();
+        int outputLevel = setting.getOutputLevel();
+        boolean isVisible = setting.isVisible();
+        long timeout = setting.getTimeout();
         String[] names = new String[numberOfPlayers];
 
         int patternSize = 1;
@@ -76,6 +86,8 @@ public class TronGame {
         for (int p = 0; p < numberOfPlayers; p++) {
             outputStreams[p].write((numberOfPlayers + "\n").getBytes());
             outputStreams[p].write((numberOfGames + "\n").getBytes());
+            outputStreams[p].write((setting.getWidth() + "\n").getBytes());
+            outputStreams[p].write((setting.getHeight() + "\n").getBytes());
             outputStreams[p].write((p + "\n").getBytes()); // player code
             outputStreams[p].flush();
             names[p] = bufferedReaders[p].readLine();
@@ -90,7 +102,7 @@ public class TronGame {
         // 各プレイヤーの勝利数
         int[] playerPoints = new int[numberOfPlayers];
 
-        Boad boad = new Boad();
+        Boad boad = new Boad(setting.getHeight(),setting.getWidth(), numberOfPlayers, setting.getTimelimit());
         // numberOfGames回対戦
         for (int i = 0; i < numberOfGames; i++) {
             // 盤面の初期化とデータ渡し
@@ -108,7 +120,7 @@ public class TronGame {
 
             Visualizer visualizer = null;
             if (isVisible) {
-                visualizer = new Visualizer(width, height);
+                visualizer = new Visualizer(setting.getWidth(), setting.getHeight());
             }
 
             int turn = 0;
@@ -116,16 +128,13 @@ public class TronGame {
             List<Integer> deadList = new ArrayList<>();
             while(numberOfPlayers == 1 || alivePlayers.size() > 1) {
                 for(int p = 0; p < numberOfPlayers; p++) {
-                    if(!boad.isAlive(p)){
-                        continue;
-                    }
                     if (!processes[p].isAlive())
                         throw new IOException("次のプレイヤーのサブプロセスが停止しました :" + names[p]);
                     Thread thread = new GetResponseThread(p);
                     thread.start();
                     long start = System.nanoTime();
                     try {
-                        thread.join(timeOut);
+                        thread.join(timeout);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -143,22 +152,22 @@ public class TronGame {
                             // TODO: プレイヤーをkillしてむりやりすすめる
                             "次のプレイヤーから整数以外の値を取得しました :" + names[p] + " :" + outputStr[p]);
                     }
-                    boolean accept = boad.move(p, num, calculateTime, names[p]);
-
-                    if(!accept) {
-                        numberOfTurn[p] = turn;
-                        num = 0;
+                    boolean accept = false;
+                    if(num != Boad.DEATH) {
+                        accept = boad.move(p, num, calculateTime, names[p]);
+                        if(!accept) {
+                            numberOfTurn[p] = turn;
+                            num = Boad.DEATH;
+                            alivePlayers.remove(Integer.valueOf(p));
+                            deadList.add(p);
+    
+                        }
                     }
 
-                    for(int k : alivePlayers) {
+                    for( int k = 0; k < numberOfPlayers; k++){
                         outputStreams[k].write((num + "\n").getBytes()); // 移動情報をoutput
                         outputStreams[k].flush();
                     }
-
-                    if(!accept) {
-                        deadList.add(alivePlayers.remove(Integer.valueOf(p)));
-                    }
-                    
                     
                     if (isVisible) {
                         // TODO: 処理
@@ -172,6 +181,11 @@ public class TronGame {
                     if(outputLevel >= 3) {
                         boad.show();
                     }
+
+                    if((numberOfPlayers > 1 && alivePlayers.size() == 1) || (numberOfPlayers == 1 && alivePlayers.size() == 0)) {
+                        break;
+                    }
+
                 }
 
                 if(numberOfPlayers == 1 && alivePlayers.size() == 0){
@@ -181,7 +195,7 @@ public class TronGame {
             }
 
             // 勝ち点の計算
-            int[] point = calcPoint(deadList);
+            int[] point = calcPoint(deadList,alivePlayers, turn);
             if (outputLevel >= 2) {
                 System.out.printf("%第2dゲームの利得: ",i);
                 for (int k = 0; k < numberOfPlayers; k++) {
@@ -204,7 +218,7 @@ public class TronGame {
                 playerPoints[t] += point[t];
             }
             if (isVisible) {
-                gui.dispose();
+                visualizer.dispose();
             }
         }
         if (outputLevel > 0) {
@@ -218,8 +232,8 @@ public class TronGame {
     }
 
     private int[] calcPoint(List<Integer> deadList, List<Integer> aliveList, int turn) {
-        if(numberOfPlayers > 1) {
-            int[] score = new int[numberOfPlayers];
+        if(setting.getNumberOfPlayers() > 1) {
+            int[] score = new int[setting.getNumberOfPlayers()];
             int point = 0;
             for(int p : deadList) {
                 score[p] = point++;
@@ -317,7 +331,7 @@ public class TronGame {
             //rank[numpair.key] = 0;
 
             // 特典順に見て，同じ値の時は同じ順位をつけていく．
-            for (int i = 1; i < numberOfPlayers; i++) {
+            for (int i = 1; i < setting.getNumberOfPlayers(); i++) {
                 numpair = dict.get(i);
                 if (beforeNum != numpair.num) {
                     beforeNum = numpair.num;

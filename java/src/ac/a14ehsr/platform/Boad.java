@@ -7,18 +7,23 @@ public class Boad {
     private int width;
     private int[][] gained; // 1 <= x <= width, 1 <= y <= height
     private int[][] nowPosition; // position of players. nowPosition[player] = {x,y}
+    private int numberOfPlayers;
+    private long timelimit;
 
-    private static final int DEATH = 0;
-    private static final int UP = 1;
-    private static final int RIGHT = 2;
-    private static final int DOWN = 3;
-    private static final int LEFT = 4;
+    public static final int DEATH = -1;
+    //public static final int WIN = -2;
+    public static final int UP = 1;
+    public static final int RIGHT = 2;
+    public static final int DOWN = 3;
+    public static final int LEFT = 4;
 
-    public Boad(int width, int height, int numberOfPlayers) {
+    public Boad(int width, int height, int numberOfPlayers, long timelimit) {
         this.width = width;
         this.height = height;
         gained = new int[height + 2][width + 2];
         nowPosition = new int[numberOfPlayers][2];
+        this.numberOfPlayers = numberOfPlayers;
+        this.timelimit = timelimit;
     }
 
     /**
@@ -32,8 +37,8 @@ public class Boad {
             boolean check;
             do {
                 check = true;
-                x = Math.random() * width + 1;
-                y = Math.random() * height + 1;
+                x = (int)(Math.random() * width) + 1;
+                y = (int)(Math.random() * height) + 1;
                 for(int k = 0; k < p; k++) {
                     if(x == nowPosition[k][0] && y == nowPosition[k][1]) {
                         check = false;

@@ -1,5 +1,12 @@
 package ac.a14ehsr.platform.setting;
 
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Scanner;
+import java.io.File;
+import java.io.IOException;
+
+
  public class Setting {
     private List<String> commandList;
     private List<String> sampleCommandList;
@@ -11,10 +18,13 @@ package ac.a14ehsr.platform.setting;
     private boolean visible;
     private long timelimit;
 
+    private int height;
+    private int width;
+
     /**
      * デフォルトコンストラクタ コマンドのリストの準備と設定ファイル読み込み
      */
-    Setting() {
+    public Setting() {
         isTest = false;
         commandList = new ArrayList<>();
         sampleCommandList = new ArrayList<>();
@@ -59,58 +69,70 @@ package ac.a14ehsr.platform.setting;
         */
     }
 
-    List<String> getSampleCommandList() {
+    public List<String> getSampleCommandList() {
         return sampleCommandList;
     }
 
-    List<String> getCommandList() {
+    public List<String> getCommandList() {
         return commandList;
     }
 
-    List<String> getTestSampleCommandList() {
+    public List<String> getTestSampleCommandList() {
         return testSampleCommandList;
     }
+
+    /**
+     * @return the height
+     */
+    public int getHeight() {
+        return height;
+    }
+
+    /**
+     * @return the width
+     */
+    public int getWidth() {
+        return width;
+    }
+    
 
     /**
      * プレイヤー人数のgettter
      * 
      * @return
      */
-    int getNumberOfPlayers() {
+    public int getNumberOfPlayers() {
         return numberOfPlayers;
     }
 
     /**
      * ゲーム数のgetter
      */
-    int getNumberOfGames() {
+    public int getNumberOfGames() {
         return numberOfGames;
-    }
-
-    /**
-     * 選択ノード数のgetter
-     */
-    int getNumberOfSelectNodes() {
-        return numberOfSelectNodes;
     }
 
     /**
      * 出力レベルのgetter
      */
-    int getOutputLevel() {
+    public int getOutputLevel() {
         return outputLevel;
     }
 
-    boolean isTest() {
+    public boolean isTest() {
         return isTest;
     }
 
-    boolean isVisible() {
+    public boolean isVisible() {
         return visible;
     }
     
-    int getTimelimit(){
+    public long getTimelimit(){
         return timelimit;
+    }
+
+    public long getTimeout() {
+        return timelimit + 1000;
     }
 
     /**
@@ -159,7 +181,7 @@ package ac.a14ehsr.platform.setting;
      * 
      * @param args コマンドライン引数
      */
-    void start(final String[] args) {
+    public void start(final String[] args) {
         if (args.length > 0) {
             try {
                 setOption(args);
@@ -190,13 +212,6 @@ package ac.a14ehsr.platform.setting;
 
                 case "-nop":
                     numberOfPlayers = Integer.parseInt(options[i + 1]);
-                    if (numberOfPlayers == 2) {
-                        numberOfGames = 30;
-                        numberOfSelectNodes = 7;
-                    } else if (numberOfPlayers == 3) {
-                        numberOfGames = 10;
-                        numberOfSelectNodes = 5;
-                    }
                     i += 2;
                     break;
 

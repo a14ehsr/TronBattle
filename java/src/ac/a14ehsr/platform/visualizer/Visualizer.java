@@ -1,5 +1,6 @@
 package ac.a14ehsr.platform.visualizer;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
 
@@ -20,7 +21,7 @@ public class Visualizer {
         frame.setSize(500,500);
         
         mainPanel = new JPanel();
-        mainPanel.setLayout(new GridLayout(heigth + 2,width + 2));
+        mainPanel.setLayout(new GridLayout(height + 2,width + 2));
 
         
         panels = new JPanel[height + 2][width + 2];
@@ -32,8 +33,12 @@ public class Visualizer {
             }
         }
 
-        frame.getContentPane().add(mainPanel,Layout.CENTER);
+        frame.getContentPane().add(mainPanel,BorderLayout.CENTER);
 
 
+    }
+
+    public void dispose() {
+        frame.dispose();
     }
 }
