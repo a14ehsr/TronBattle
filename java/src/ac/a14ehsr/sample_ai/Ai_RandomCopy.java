@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Ai_Random {
+public class Ai_RandomCopy {
     private static final int DEATH = -1;
     private static final int UP = 1;
     private static final int RIGHT = 2;
@@ -19,10 +19,10 @@ public class Ai_Random {
     private int playerCode; // 0始まりの識別番号
     private int[][] nowPosition;
     private Scanner sc;
-    static final String playerName = "P_Random";
+    static final String playerName = "P_RandomCopy";
 
     public static void main(String[] args) {
-        (new Ai_Random()).run();
+        (new Ai_RandomCopy()).run();
     }
 
         /**
@@ -34,7 +34,7 @@ public class Ai_Random {
 
         // ゲーム数ループ
         for (int i = 0; i < numberOfGames; i++) {
-            System.err.println("PRゲームループHEAD");
+            System.err.println("RCゲームループHEAD");
             int[][] boad = new int[height + 2][width + 2];
             for(int[] a : boad) {
                 Arrays.fill(a, -1);
@@ -49,11 +49,10 @@ public class Ai_Random {
                 nowPosition[p][1] = sc.nextInt();
                 alivePlayers.add(p);
             }
-            System.err.println("PR:初期位置" + nowPosition[playerCode][0] + " - " + nowPosition[playerCode][1]);
+            System.err.println("RC :初期位置" + nowPosition[playerCode][0] + " - " + nowPosition[playerCode][1]);
             while(numberOfPlayers == 1 || aliveCount > 1){
                 for (int p = 0; p < numberOfPlayers; p++) {
-                    if (p == playerCode) 
-                    {
+                    if (p == playerCode) {
                         if(!isAlive[p]) {
                             System.out.println(DEATH);
                         }else{
@@ -63,7 +62,7 @@ public class Ai_Random {
                             System.out.println(direction);
                         }
                     }
-                    System.err.println("PR"+ playerCode +" : "+ p);
+                    System.err.println("RC"+ playerCode +" : "+ p);
 
                     int direction = sc.nextInt();
                     if(direction != DEATH) {
@@ -76,7 +75,6 @@ public class Ai_Random {
                 if((numberOfPlayers > 1 && aliveCount == 1) || (numberOfPlayers == 1 && aliveCount == 0)) {
                     break;
                 }
-
             }
         }
     }

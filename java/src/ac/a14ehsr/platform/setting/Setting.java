@@ -17,6 +17,7 @@ import java.io.IOException;
     private boolean isTest;
     private boolean visible;
     private long timelimit;
+    private boolean continueOnePlayer;
 
     private int height;
     private int width;
@@ -25,6 +26,9 @@ import java.io.IOException;
      * デフォルトコンストラクタ コマンドのリストの準備と設定ファイル読み込み
      */
     public Setting() {
+        continueOnePlayer = false;
+        width = 10;
+        height = 10;
         isTest = false;
         commandList = new ArrayList<>();
         sampleCommandList = new ArrayList<>();
@@ -55,8 +59,9 @@ import java.io.IOException;
             e.printStackTrace();
         }
         String common = javaRunCommand + " " + javaRunOptions + " -classpath java/src/ ac.a14ehsr.sample_ai.";
+        sampleCommandList.add(common + "Ai_Random");
+        sampleCommandList.add(common + "Ai_RandomCopy");
         /*
-        sampleCommandList.add(common + "P_Random");
         sampleCommandList.add(common + "P_Max");
         sampleCommandList.add(common + "P_4Neighbours");
         sampleCommandList.add(common + "P_8Neighbours");
@@ -67,6 +72,13 @@ import java.io.IOException;
         testSampleCommandList.add(common + "P_Chaise");
         testSampleCommandList.add(common + "P_Copy");
         */
+    }
+
+    /**
+     * @return the continueOnePlayer
+     */
+    public boolean isContinueOnePlayer() {
+        return continueOnePlayer;
     }
 
     public List<String> getSampleCommandList() {

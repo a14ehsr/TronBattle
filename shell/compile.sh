@@ -6,7 +6,8 @@ cd java/src
 
 
 ${command} ${options} ac/a14ehsr/platform/TronGame.java
-#${command} ${options} ac/a14ehsr/sample_ai/P_Random.java
+${command} ${options} ac/a14ehsr/sample_ai/Ai_Random.java
+${command} ${options} ac/a14ehsr/sample_ai/Ai_RandomCopy.java
 #${command} ${options} ac/a14ehsr/sample_ai/P_Max.java
 #${command} ${options} ac/a14ehsr/sample_ai/P_4Neighbours.java
 #${command} ${options} ac/a14ehsr/sample_ai/P_8Neighbours.java

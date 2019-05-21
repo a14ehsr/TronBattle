@@ -1,11 +1,16 @@
 package ac.a14ehsr.platform;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import ac.a14ehsr.platform.setting.Setting;
@@ -57,6 +62,259 @@ public class TronGame {
         outputStr[index] = bufferedReaders[index].readLine();
     }
 
+    public static void main(String[] args) {
+        TronGame obj = new TronGame(args);
+        if (obj.setting.isTest()) {
+            //obj.test();
+        } else {
+            obj.autoRun();
+        }
+
+    }
+
+
+    /**
+     * サブプロセスを終了
+     */
+    private void processDestroy() {
+        for (Process p : processes) {
+            if (p == null)
+                continue;
+            try {
+                p.destroy();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * 対戦の実行
+     */
+    private void autoRun() {
+        List<String> commandList = setting.getCommandList();
+        String[] names = new String[commandList.size()];
+        List<Result> resultList = new ArrayList<>();
+        int[] matching = new int[setting.getNumberOfPlayers()];
+        autoRun(commandList, names, resultList, matching, 0);
+        result(names, resultList);
+    }
+
+    private void autoRun(List<String> commandList, String[] names, List<Result> resultList, int[] matching, int count) {
+        int numberOfPlayers = setting.getNumberOfPlayers();
+        if (numberOfPlayers == count) {
+            // 対戦とリザルトの格納
+            String[] commands = new String[numberOfPlayers];
+            for (int i = 0; i < numberOfPlayers; i++) {
+                commands[i] = commandList.get(matching[i]);
+            }
+            try {
+                startSubProcess(commands);
+                Result result = run();
+                String[] resultNames = result.names;
+                for (int i = 0; i < numberOfPlayers; i++) {
+                    names[matching[i]] = resultNames[i];
+                    result.setPlayerID(matching);
+                }
+
+                resultList.add(result);
+            } catch (Exception e) {
+                e.printStackTrace();
+                resultList.add(new Result(matching));
+            } finally {
+                processDestroy();
+            }
+
+            return;
+        }
+        if (count == 0) {
+            for (int i = 0; i < commandList.size(); i++) {
+                matching[0] = i;
+                autoRun(commandList, names, resultList, matching, count + 1);
+            }
+            return;
+        }
+
+        // matching[count]番目以降との組み合わせだけを考える
+        for (int i = matching[count - 1] + 1; i < commandList.size(); i++) {
+            matching[count] = i;
+            autoRun(commandList, names, resultList, matching, count + 1);
+        }
+    }
+
+    private int makeIndexForResult(int[] id, int index, int size) {
+        List<Integer> list = new ArrayList<>();
+        for (int i = 0; i < id.length; i++) {
+            if (i == index)
+                continue;
+            list.add(id[i]);
+        }
+        Collections.sort(list);
+
+        int ans = 0;
+        int count = id.length - 2;
+        for (int num : list) {
+            ans += num * Math.pow(size, count--);
+        }
+        return ans;
+    }
+    
+    private void makePairString(List<String> strList, int size, int count, String str) {
+        int numberOfPlayers = setting.getNumberOfPlayers();
+        if (count == numberOfPlayers - 1) {
+            strList.add(str);
+            return;
+        }
+        for (int i = 0; i < size; i++) {
+            makePairString(strList, size, count + 1, str + "-" + i);
+        }
+    }
+    
+    /**
+     * リザルトの出力
+     */
+    private void result(String[] names, List<Result> resultList) {
+        int numberOfPlayers = setting.getNumberOfPlayers();
+        // 各順位を何回とったか集計
+        int[][] rankCount = new int[names.length][numberOfPlayers+1];
+        String[][] resultArray = new String[names.length][(int) Math.pow(names.length, numberOfPlayers - 1)];
+        for(String[] array : resultArray){
+            Arrays.fill(array, "null");
+        }
+        for (Result result : resultList) {
+            int[] id = result.playerID;
+            int[] rank = result.rank;
+            for (int i = 0; i < numberOfPlayers; i++) {
+                if (result.isNoContest) {
+                    resultArray[id[i]][makeIndexForResult(id, i, names.length)] = "VOID";
+                    rankCount[id[i]][numberOfPlayers]++;
+                } else {
+                    rankCount[id[i]][rank[i]]++;
+                    resultArray[id[i]][makeIndexForResult(id, i, names.length)] = "" + (rank[i] + 1);
+                }
+            }
+        }
+
+        boolean[] skip = new boolean[resultArray[0].length];
+        Arrays.fill(skip, true);
+        for (int i = 0; i < resultArray[0].length; i++) {
+            for (int j = 0; j < resultArray.length; j++) {
+                if (!"null".equals(resultArray[j][i])) {
+                    skip[i] = false;
+                    break;
+                }
+            }
+        }
+
+        List<String> strList = new ArrayList<>();
+        for (int i = 0; i < names.length; i++) {
+            makePairString(strList, names.length, 1, ""+i);
+        }
+        System.out.println("RESULT");
+        System.out.printf("%23s", "");
+        for (int i=0; i<strList.size(); i++) {
+            if (skip[i]) {
+                continue;
+            }
+            System.out.printf("(%5s)", strList.get(i));
+        }
+
+        System.out.printf(" |");
+        for (int i = 1; i <= numberOfPlayers; i++) {
+            System.out.print(" r"+i);
+        }
+        System.out.println(" VOID (times)");
+        for (int i = 0; i < names.length; i++) {
+            System.out.printf("%3d:%18s ", i, names[i]);
+            for (int j = 0; j < resultArray[i].length; j++) {
+                if (skip[j]) {
+                    continue;
+                }
+                System.out.printf("%6s ", resultArray[i][j]);
+            }
+            System.out.printf(" |");
+            for (int j = 0; j < numberOfPlayers; j++) {
+                System.out.printf(" %2d", rankCount[i][j]);
+            }
+            System.out.printf("   %2d\n", rankCount[i][numberOfPlayers]);
+        }
+
+        
+        // リザルト出力用ファイルの準備
+        FileWriter file = null;
+        try {
+            file = new FileWriter("resource/result/"+numberOfPlayers+"PlayersResult.csv");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        PrintWriter pw = new PrintWriter(new BufferedWriter(file));
+        pw.printf(",");
+        for (int i = 0; i < strList.size(); i++) {
+            if (skip[i]) {
+                continue;
+            }
+            pw.printf(",(%s)", strList.get(i));
+        }
+        for (int i = 1; i <= numberOfPlayers; i++) {
+            pw.print(",r" + i);
+        }
+        pw.println(",VOID,(times)");
+        for (int i = 0; i < names.length; i++) {
+            pw.printf("%d,%s", i, names[i]);
+            for (int j = 0; j < resultArray[i].length; j++) {
+                if (skip[j]) {
+                    continue;
+                }
+                pw.printf(",%s", resultArray[i][j]);
+            }
+            for (int j = 0; j < numberOfPlayers; j++) {
+                pw.printf(",%d", rankCount[i][j]);
+            }
+            pw.printf(",%d\n", rankCount[i][numberOfPlayers]);
+        }
+        pw.close();
+    }
+    
+    /**
+    * テスト実行によるふるい
+    */
+    private void test() {
+        List<String> commandList = setting.getCommandList();
+        List<String> sampleCommandList = setting.getTestSampleCommandList();
+
+        // 実行コマンド出力ファイルの準備
+        FileWriter file = null;
+        try {
+            file = new FileWriter("resource/command_list/command_list_green.txt");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        PrintWriter pw = new PrintWriter(new BufferedWriter(file));
+
+        // サンプルと対戦させ，例外が発生しなかれば，実行可能コマンドとしてファイルに出力
+        for (int i = 0; i < commandList.size(); i++) {
+            String playerCommand = commandList.get(i);
+            System.out.println(playerCommand);
+            try {
+                for (String command : sampleCommandList) {
+                    startSubProcess(new String[] { playerCommand, command });
+                    run();
+                    processDestroy();
+                }
+                pw.println(playerCommand);
+            } catch (NumberFormatException e) {
+            } catch (IOException e) {
+                System.err.println(e);
+            } catch (TimeoutException e) {
+                System.err.println(e);
+            } finally {
+                processDestroy();
+            }
+        }
+        pw.close();
+    }
+
+
     /**
      * 対戦する
      * 
@@ -105,6 +363,7 @@ public class TronGame {
         Boad boad = new Boad(setting.getHeight(),setting.getWidth(), numberOfPlayers, setting.getTimelimit());
         // numberOfGames回対戦
         for (int i = 0; i < numberOfGames; i++) {
+            System.err.println("ゲーム:" + i);
             // 盤面の初期化とデータ渡し
             int[][] nowPosition = boad.initilize();
 
@@ -117,16 +376,15 @@ public class TronGame {
                 outputStreams[p].flush();
                 alivePlayers.add(p);
             }
-
             Visualizer visualizer = null;
             if (isVisible) {
                 visualizer = new Visualizer(setting.getWidth(), setting.getHeight());
             }
-
             int turn = 0;
             int[] numberOfTurn = new int[numberOfPlayers]; // 各playerが何ターン生きたか
             List<Integer> deadList = new ArrayList<>();
-            while(numberOfPlayers == 1 || alivePlayers.size() > 1) {
+            boolean finishFlag = false;
+            while(!finishFlag) {
                 for(int p = 0; p < numberOfPlayers; p++) {
                     if (!processes[p].isAlive())
                         throw new IOException("次のプレイヤーのサブプロセスが停止しました :" + names[p]);
@@ -162,10 +420,17 @@ public class TronGame {
                             deadList.add(p);
     
                         }
+                        if(!setting.isContinueOnePlayer() && alivePlayers.size() == 1) {
+                            finishFlag = true;
+                        }
                     }
 
                     for( int k = 0; k < numberOfPlayers; k++){
-                        outputStreams[k].write((num + "\n").getBytes()); // 移動情報をoutput
+                        if(finishFlag && alivePlayers.contains(Integer.valueOf(k))){
+                            outputStreams[k].write((Boad.WIN + "\n").getBytes()); // 移動情報をoutput    
+                        }else{
+                            outputStreams[k].write((num + "\n").getBytes()); // 移動情報をoutput
+                        }
                         outputStreams[k].flush();
                     }
                     
@@ -181,15 +446,6 @@ public class TronGame {
                     if(outputLevel >= 3) {
                         boad.show();
                     }
-
-                    if((numberOfPlayers > 1 && alivePlayers.size() == 1) || (numberOfPlayers == 1 && alivePlayers.size() == 0)) {
-                        break;
-                    }
-
-                }
-
-                if(numberOfPlayers == 1 && alivePlayers.size() == 0){
-                    break;
                 }
                 turn++;
             }
@@ -197,7 +453,7 @@ public class TronGame {
             // 勝ち点の計算
             int[] point = calcPoint(deadList,alivePlayers, turn);
             if (outputLevel >= 2) {
-                System.out.printf("%第2dゲームの利得: ",i);
+                System.out.printf("第%2dゲームの利得: ",i);
                 for (int k = 0; k < numberOfPlayers; k++) {
                     System.out.print(names[k] + " ");
                 }

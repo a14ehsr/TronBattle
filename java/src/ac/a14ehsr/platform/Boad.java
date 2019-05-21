@@ -11,7 +11,7 @@ public class Boad {
     private long timelimit;
 
     public static final int DEATH = -1;
-    //public static final int WIN = -2;
+    public static final int WIN = -2;
     public static final int UP = 1;
     public static final int RIGHT = 2;
     public static final int DOWN = 3;
@@ -62,7 +62,7 @@ public class Boad {
      * @return
      */
     public boolean move(int player, int direction, long calculateTime, String name) {
-        if(calculateTime > timelimit) {
+        if(calculateTime/1.0e6 > timelimit) {
             System.err.println("制限時間を超過しました  | プレイヤー:" + name);
             kill(player);
             return false;
@@ -109,19 +109,19 @@ public class Boad {
     public void show() {
         System.out.print("|");
         for(int x = 1; x <= width; x++) {
-            System.out.print("--");
+            System.out.print("---");
         }
         System.out.println("|");
         for(int y = height; y > 0; y--) {
             System.out.print("|");
             for(int x = 1; x <= width; x++) {
-                System.out.print(gained[y][x] + " ");
+                System.out.printf("%2d ",gained[y][x]);
             }
             System.out.println("|");
         }
         System.out.print("|");
         for(int x = 1; x <= width; x++) {
-            System.out.print("--");
+            System.out.print("---");
         }
         System.out.println("|");
     }
