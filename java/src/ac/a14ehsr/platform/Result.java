@@ -2,6 +2,8 @@ package ac.a14ehsr.platform;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import ac.a14ehsr.player.Player;
 /**
  * リザルト用のEntity
  */
@@ -12,10 +14,15 @@ class Result {
     int[] rank;
     boolean isNoContest;
 
-    Result(String[] names, int[] playerPoints) {
-        this.names = names;
-        this.playerPoints = playerPoints;
-        rank = new int[names.length];
+    Result(Player[] players) {
+        int numberOfPlayers = players.length;
+        names = new String[numberOfPlayers];
+        playerPoints = new int[numberOfPlayers];
+        rank = new int[numberOfPlayers];
+        for(int p = 0; p < numberOfPlayers; p++) {
+            names[p] = players[p].getName();
+            playerPoints[p] = players[p].getSumPoint();
+        }
         setRank();
         isNoContest = false;
     }
@@ -54,7 +61,7 @@ class Result {
         //rank[numpair.key] = 0;
 
         // 特典順に見て，同じ値の時は同じ順位をつけていく．
-        for (int i = 1; i < setting.getNumberOfPlayers(); i++) {
+        for (int i = 1; i < names.length; i++) {
             numpair = dict.get(i);
             if (beforeNum != numpair.num) {
                 beforeNum = numpair.num;

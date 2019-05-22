@@ -7,29 +7,21 @@ import java.io.File;
 import java.io.IOException;
 
 
- public class Setting {
+ public class Options {
     private List<String> commandList;
     private List<String> sampleCommandList;
     private List<String> testSampleCommandList;
     private int numberOfGames;
     private int numberOfPlayers;
     private int outputLevel;
-    private boolean isTest;
+    private boolean test;
     private boolean visible;
     private long timelimit;
-    private boolean continueOnePlayer;
-
-    private int height;
-    private int width;
 
     /**
      * デフォルトコンストラクタ コマンドのリストの準備と設定ファイル読み込み
      */
-    public Setting() {
-        continueOnePlayer = false;
-        width = 10;
-        height = 10;
-        isTest = false;
+    public Options() {
         commandList = new ArrayList<>();
         sampleCommandList = new ArrayList<>();
         testSampleCommandList = new ArrayList<>();
@@ -74,13 +66,6 @@ import java.io.IOException;
         */
     }
 
-    /**
-     * @return the continueOnePlayer
-     */
-    public boolean isContinueOnePlayer() {
-        return continueOnePlayer;
-    }
-
     public List<String> getSampleCommandList() {
         return sampleCommandList;
     }
@@ -92,21 +77,6 @@ import java.io.IOException;
     public List<String> getTestSampleCommandList() {
         return testSampleCommandList;
     }
-
-    /**
-     * @return the height
-     */
-    public int getHeight() {
-        return height;
-    }
-
-    /**
-     * @return the width
-     */
-    public int getWidth() {
-        return width;
-    }
-    
 
     /**
      * プレイヤー人数のgettter
@@ -132,7 +102,7 @@ import java.io.IOException;
     }
 
     public boolean isTest() {
-        return isTest;
+        return test;
     }
 
     public boolean isVisible() {
@@ -160,32 +130,27 @@ import java.io.IOException;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        String[] line;
-        line = sc.nextLine().split(" ");
-        if (!"numberOfPlayers".equals(line[0])) {
-            throw new Exception("line1 need be numberOfPlayers");
-        }
-        numberOfPlayers = Integer.parseInt(line[1]);
-
-        line = sc.nextLine().split(" ");
-        if (!"numberOfGames".equals(line[0])) {
-            throw new Exception("line2 need be numberOfGames");
-        }
-        numberOfGames = Integer.parseInt(line[1]);
-
-        line = sc.nextLine().split(" ");
-        if (!"outputlevel".equals(line[0])) {
-            throw new Exception("line3 need be outputlevel");
-        }
-        outputLevel = Integer.parseInt(line[1]);
-        
-        line = sc.nextLine().split(" ");
-        if (!"timelimit".equals(line[0])) {
-            throw new Exception("line4 need be timelimit(ms)");
-        }
-        timelimit = Integer.parseInt(line[1]);
-        
+        test = false;
         visible = false;
+
+        String[] line;
+        while(sc.hasNextLine()) {
+            line = sc.nextLine().split(" ");
+            switch(line[0]) {
+                case "players":
+                    numberOfPlayers = Integer.parseInt(line[1]);
+                    break;
+                case "games":
+                    numberOfGames = Integer.parseInt(line[1]);
+                    break;
+                case "timelimit":
+                    timelimit = Long.parseLong(line[1]);
+                    break;
+                case "output":
+                    outputLevel = Integer.parseInt(line[1]);
+                    break;
+            }
+        }
     }
 
     /**
@@ -263,7 +228,7 @@ import java.io.IOException;
 
                 case "-test":
                     numberOfGames = Integer.parseInt(options[i + 1]);
-                    isTest = true;
+                    test = true;
                     readCommandList(commandList, "resource/command_list/command_list.txt");
                     outputLevel = 0;
                     i += 2;

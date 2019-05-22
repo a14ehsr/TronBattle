@@ -8,7 +8,7 @@ import java.io.OutputStream;
 
 import ac.a14ehsr.exception.TimeoutException;
 import ac.a14ehsr.exception.TimeoverException;
-import ac.a14ehsr.platform.setting.Setting;
+import ac.a14ehsr.platform.setting.Options;
 
 public class Player {
     private PlayerProcess process;
@@ -100,9 +100,25 @@ public class Player {
         this.code = code;
     }
 
-    public void sendGameInfo(Setting setting) throws IOException, TimeoutException, TimeoverException {
-        process.send(setting.toString());
-        name = process.receiveMes(100, 1000);
+    public void sendMes(String mes) throws IOException {
+        process.send(mes);
     }
+
+    public void sendNum(int num) throws IOException {
+        process.send(num);
+    }
+
+    public String receiveMes(long timeout, long timelimit) throws IOException, TimeoutException, TimeoverException {
+        return process.receiveMes(timeout, timelimit);
+    }
+
+    public int receiveNum(long timeout, long timelimit) throws IOException, TimeoutException, TimeoverException {
+        return process.receiveNum(timeout, timelimit);
+    }
+
+    public void destroy() {
+        process.destroy();
+    }
+
 
 }

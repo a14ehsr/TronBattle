@@ -8,7 +8,7 @@ import java.io.OutputStream;
 
 import ac.a14ehsr.exception.TimeoutException;
 import ac.a14ehsr.exception.TimeoverException;
-import ac.a14ehsr.platform.setting.Setting;
+import ac.a14ehsr.platform.setting.Options;
 
 public class PlayerProcess {
     private Process process;
@@ -17,7 +17,6 @@ public class PlayerProcess {
     private BufferedReader bufferedReader;
 
     private String name;
-    private int code;
 
     /**
      * 文字列受け取り用の一時変数
@@ -25,14 +24,8 @@ public class PlayerProcess {
      */
     private String receiveString;
 
-    /**
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
 
-    public static PlayerProcess of(Runtime runtime, String runCommand) throws IOException {
+    static PlayerProcess of(Runtime runtime, String runCommand) throws IOException {
         PlayerProcess playerProcess = new PlayerProcess();
         playerProcess.process = runtime.exec(runCommand);
         playerProcess.outputStream = playerProcess.process.getOutputStream();
@@ -51,7 +44,7 @@ public class PlayerProcess {
      * @param num
      * @throws IOException
      */
-    public void send(int num) throws IOException {
+    void send(int num) throws IOException {
         send(String.valueOf(num));
     }
 
@@ -61,12 +54,12 @@ public class PlayerProcess {
      * @param mes
      * @throws IOException
      */
-    public void send(String mes) throws IOException {
+    void send(String mes) throws IOException {
         outputStream.write((mes + "\n").getBytes()); // 初期座標を渡す
         outputStream.flush();
     }
 
-    public String receiveMes(long timeout, long timelimit) throws IOException, TimeoutException, TimeoverException {
+    String receiveMes(long timeout, long timelimit) throws IOException, TimeoutException, TimeoverException {
         if (!process.isAlive())
             throw new IOException("値取得時に次のプレイヤーのサブプロセスが停止しました :" + name);
         Thread thread = new ReceiveThread();
@@ -89,7 +82,7 @@ public class PlayerProcess {
         return receiveString;
     }
 
-    public int receiveNum(long timeout, long timelimit) throws IOException, TimeoutException, TimeoverException, NumberFormatException {
+    int receiveNum(long timeout, long timelimit) throws IOException, TimeoutException, TimeoverException, NumberFormatException {
         String tmp = receiveMes(timeout, timelimit);
         return Integer.parseInt(tmp);
     }
@@ -112,7 +105,7 @@ public class PlayerProcess {
     /**
      * サブプロセスを終了
      */
-    private void destroy() {
+    void destroy() {
         if (process == null) return;
         try {
             process.destroy();
