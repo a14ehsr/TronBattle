@@ -16,7 +16,7 @@ public class GamePlatform {
         Runtime rt = Runtime.getRuntime();
         players = new Player[numberOfPlayer];
         for(int p = 0; p < numberOfPlayer; p++) {
-            players[p] = Player.of(rt,commands[p],p);
+            players[p] = new Player(rt,commands[p],p);
         }
 
         // サブプロセス起動が長い可能性を考慮しておく
@@ -27,15 +27,30 @@ public class GamePlatform {
         }
     }
 
-    public Result battle(int numberOfPlayer, int numberOfGame, int outputLevel, boolean isVisible, long timeout, long timelimit) {
-        for(Player player : players) {
-            player.sendGameInfo(setting);
-        }
+    // TODO: 引数にgameを入れる
+    public Result battle(Game game, int outputLevel, boolean isVisible, long timeout) {
+        game.sendGameInfo();
         if (outputLevel > 0) {
-            System.out.println("players  : " + String.join(" vs ",Arrays.stream(players).map(Player::getName).toArray(String[]::new)));
+            game.showPlayers();
+        }
+
+        for(int g = 0; g < game.getNumberOfGames(); g++) {
+            game.initialize();
+            aGame(game);
+
+            if(outputLevel > 1) {
+                game.showGameResult();
+            }
         }
         
+        return game.result();
+    }
 
+    public void aGame(Game game) {
+        // ゲームが終了するまで続行
+        while(!game.isContinue()) {
+            game.play();
+        }
     }
 
 
