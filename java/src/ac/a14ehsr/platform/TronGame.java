@@ -36,7 +36,7 @@ public class TronGame {
     /**
      * サブプロセスの起動
      * 
-     * @param cmd 実行コマンド(0:攻撃，1:防御)
+     * @param cmd 実行コマンド
      * @throws IOException
      */
     private void startSubProcess(String[] cmd) throws IOException {
@@ -335,11 +335,6 @@ public class TronGame {
         long timeout = setting.getTimeout();
         String[] names = new String[numberOfPlayers];
 
-        int patternSize = 1;
-        for (int i = 1; i <= numberOfPlayers; i++) {
-            patternSize *= i;
-        }
-
         // send information of game
         for (int p = 0; p < numberOfPlayers; p++) {
             outputStreams[p].write((numberOfPlayers + "\n").getBytes());
@@ -357,7 +352,7 @@ public class TronGame {
 
         outputStr = new String[numberOfPlayers];
 
-        // 各プレイヤーの勝利数
+        // 各プレイヤーの総利得
         int[] playerPoints = new int[numberOfPlayers];
 
         Boad boad = new Boad(setting.getHeight(),setting.getWidth(), numberOfPlayers, setting.getTimelimit());
@@ -494,7 +489,9 @@ public class TronGame {
             for(int p : deadList) {
                 score[p] = point++;
             }
-            score[aliveList.get(0)] = point;
+            if(aliveList.size() > 0) {
+                score[aliveList.get(0)] = point;
+            }
             return score;
         } else {
             return new int[]{turn};
