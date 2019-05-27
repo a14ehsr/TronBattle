@@ -1,4 +1,4 @@
-numberOfPlayers 2
-numberOfGames 30
-outputlevel 2
+players 2
+games 10
 timelimit 1000
+output 2

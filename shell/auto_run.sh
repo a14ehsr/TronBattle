@@ -9,9 +9,9 @@ command=`cat resource/setting/java/run_command.txt`
 options=`cat resource/setting/java/run_options.txt`
 
 if [ $1 -eq 2 ]; then
-  ${command} ${options} -classpath java/src ac.a14ehsr.platform.VoronoiGame -auto true
+  ${command} ${options} -classpath java/src ac.a14ehsr.platform.GamePlatform -auto true
 fi
 
 if [ $1 -eq 3 ]; then
-  ${command} ${options} -classpath java/src ac.a14ehsr.platform.VoronoiGame -auto true -nop 3
+  ${command} ${options} -classpath java/src ac.a14ehsr.platform.GamePlatform -auto true -nop 3
 fi

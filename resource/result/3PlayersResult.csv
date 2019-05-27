@@ -1,0 +1,4 @@
+,,(0-1),(0-2),(1-2),r1,r2,r3,VOID,(times)
+0,P_Random,null,null,3,0,0,1,0
+1,P_Random,null,2,null,0,1,0,0
+2,P_RandomCopy,1,null,null,1,0,0,0
