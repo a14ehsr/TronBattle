@@ -219,13 +219,13 @@ import java.io.IOException;
                     break;
 
                 case "-auto":
-                    readCommandList(commandList, "resource/command_list/command_list_green.txt");
+                    readCommandList(commandList, "resource/command_list/command_list.txt");
                     if ("true".equals(options[i + 1])) {
                         commandList.addAll(sampleCommandList);
                     }
                     i += 2;
                     break;
-
+                /*
                 case "-test":
                     numberOfGames = Integer.parseInt(options[i + 1]);
                     test = true;
@@ -234,6 +234,7 @@ import java.io.IOException;
                     outputLevel = 0;
                     i += 1;
                     break;
+                */
 
                 default:
                     throw new OptionsException("存在しないオプション:"+options[i]);

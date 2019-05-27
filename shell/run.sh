@@ -3,9 +3,13 @@
 command=`cat resource/setting/java/run_command.txt`
 options=`cat resource/setting/java/run_options.txt`
 if [ $1 -eq 2 ]; then
-  ${command} ${options} -classpath java/src ac.a14ehsr.platform.VoronoiGame -p "$2" -p "$3"
+  ${command} ${options} -classpath java/src ac.a14ehsr.platform.GamePlatform -p "$2" -p "$3"
 fi
 
 if [ $1 -eq 3 ]; then
-  ${command} ${options} -classpath java/src ac.a14ehsr.platform.VoronoiGame -p "$2" -p "$3" -p "$4" -nop 3
+  ${command} ${options} -classpath java/src ac.a14ehsr.platform.GamePlatform -p "$2" -p "$3" -p "$4" -nop 3
+fi
+
+if [ $1 -eq 4 ]; then
+  ${command} ${options} -classpath java/src ac.a14ehsr.platform.GamePlatform -p "$2" -p "$3" -p "$4" -p "$5" -nop 4
 fi

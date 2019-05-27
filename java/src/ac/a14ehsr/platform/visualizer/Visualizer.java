@@ -5,19 +5,26 @@ import java.awt.Color;
 import java.awt.GridLayout;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 
 public class Visualizer {
     private JFrame frame;
     private JPanel mainPanel;
+    private JPanel namePanel;
 
     private JPanel[][] panels;
+
+    private int height;
+    private int width;
 
     private static final Color[] playerColor = {Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW};
     private static final Color notAchieve = Color.LIGHT_GRAY;
 
     public Visualizer(int width, int height) {
+        this.width = width;
+        this.height = height;
         frame = new JFrame();
         
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -26,7 +33,6 @@ public class Visualizer {
         
         mainPanel = new JPanel();
         mainPanel.setLayout(new GridLayout(height + 2,width + 2));
-
         
         panels = new JPanel[height + 2][width + 2];
         LineBorder border = new LineBorder(Color.BLACK);
@@ -51,7 +57,17 @@ public class Visualizer {
 
         frame.getContentPane().add(mainPanel,BorderLayout.CENTER);
 
+        namePanel = new JPanel();
+        frame.getContentPane().add(namePanel,BorderLayout.NORTH);
 
+    }
+
+    public void setName(String[] names) {
+        for(int p = 0; p < names.length; p++) {
+            JLabel label = new JLabel(names[p]);
+            label.setForeground(playerColor[p]);
+            namePanel.add(label);
+        }
     }
 
     public void setColor(int player, int x, int y) {
@@ -68,5 +84,13 @@ public class Visualizer {
 
     public void dispose() {
         frame.dispose();
+    }
+
+    public void reset() {
+        for(int y = 1; y <= height; y++) {
+            for(int x = 1; x <= width; x++) {
+                panels[y][x].setBackground(notAchieve);
+            }
+        }       
     }
 }

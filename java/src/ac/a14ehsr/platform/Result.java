@@ -69,10 +69,6 @@ class Result {
             }
             rank[numpair.key] = index;
         }
-        System.err.println("result makeing");
-        for(int i = 0; i < names.length; i++) {
-            System.err.println(names[i] + " " + playerPoints[i] + " " + rank[i]);
-        }
     }
     class NumberPair {
         int key;

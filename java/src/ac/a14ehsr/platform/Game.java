@@ -28,6 +28,10 @@ public abstract class Game {
         visualizer = null;
     }
 
+    public void setVisualizerName() {
+        visualizer.setName(Arrays.stream(players).map(Player::getName).toArray(String[]::new));
+    }
+
     /**
      * @param visualizer the visualizer to set
      */
@@ -127,12 +131,6 @@ public abstract class Game {
      */ 
     abstract boolean isContinue();
 
-    /**
-     * 残り一人になっているならその人にWINを付与してfalseを返す
-     * @return
-     */
-    abstract boolean checkContinue();
-
     void sendGameFinish() throws IOException {
         for(Player player : players) {
             player.sendNum(FINISH);
@@ -142,6 +140,18 @@ public abstract class Game {
     void sendGameContinue() throws IOException {
         for(Player player : players) {
             player.sendNum(CONTINUE);
+        }
+    }
+
+    void dispose() {
+        if(visualizer != null) {
+            visualizer.dispose();
+        }
+    }
+
+    void visualizerReset() {
+        if(visualizer != null) {
+            visualizer.reset();
         }
     }
 }

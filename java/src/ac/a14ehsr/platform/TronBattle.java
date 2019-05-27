@@ -10,7 +10,7 @@ import ac.a14ehsr.player.Player;
 public class TronBattle extends Game {
     public static final int DEATH = 0;
     public static final int ALIVE = 1;
-    public static final int WIN = 2;
+    //public static final int WIN = 2;
 
     public static final int UP = 1;
     public static final int RIGHT = 2;
@@ -79,6 +79,11 @@ public class TronBattle extends Game {
             } while(!check);
             initialPosition[p] = tmp.clone();
             nowPosition[p] = tmp.clone();
+            if(isVisible) {
+                int code = players[p].getCode();
+                visualizer.setColor(code, nowPosition[code][0], nowPosition[code][1]);
+            }
+            board[tmp[1]][tmp[0]] = players[p].getCode();
         }
         for(Player player : players) {
             player.setStatus(ALIVE);
@@ -89,7 +94,9 @@ public class TronBattle extends Game {
 
     @Override
     boolean isContinue() {
-        //System.err.println("isConti:"+ Arrays.stream(players).filter(player -> player.getStatus() == ALIVE).count());
+        if(numberOfPlayers == 1) {
+            return players[0].getStatus() != DEATH;
+        }
         return Arrays.stream(players).filter(player -> player.getStatus() == ALIVE).count() > 1;
     }
 
@@ -100,21 +107,6 @@ public class TronBattle extends Game {
             player.sendNum(width);
             player.sendNum(height);
         }
-    }
-    
-    @Override
-    boolean checkContinue() {
-        if(Arrays.stream(players).filter(p -> p.getStatus() != DEATH).count() == 1) {
-            for(Player player : players) {
-                if(player.getStatus() != DEATH) {
-                    player.setStatus(WIN);
-                    player.setGamePoint(1);
-                    break;
-                }
-            }
-            return false;
-        }
-        return true;
     }
 
     @Override
@@ -135,6 +127,11 @@ public class TronBattle extends Game {
             int code = player.getCode();
             if(nowPosition[code][0] != -1 && isVisible) {
                 visualizer.setColor(code, nowPosition[code][0], nowPosition[code][1]);
+                try{
+                    Thread.sleep(50);
+                }catch(Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
         //Arrays.stream(players).forEach(p -> System.err.print(p.getGamePoint() + " "));
@@ -225,14 +222,6 @@ public class TronBattle extends Game {
         for(Player player : players) {
             player.setSumPoint(player.getSumPoint() + (numberOfPlayers - player.getGamePoint()));
         }
-    }
-
-    /**
-     * playerに勝利の状態を付与
-     * @param player
-     */
-    void win(Player player) {
-        player.setStatus(WIN);
     }
 
     @Override

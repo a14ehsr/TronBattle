@@ -15,15 +15,20 @@ public class Ai_Random {
     private static final int DOWN = 3;
     private static final int LEFT = 4;
 
+    private static final int NOT_ACHIEVED = -1;
+    private static final int WALL = -2;
+
     private int numberOfPlayers;
     private int numberOfGames;
     private int timelimit;
     private int width;
     private int height;
     private int playerCode; // 0始まりの識別番号
-    private int[][] nowPosition;
     private Scanner sc;
     static final String playerName = "P_Random";
+    
+    private int[][] nowPosition;
+    private int[][] board;
 
     public static void main(String[] args) {
         (new Ai_Random()).run();
@@ -39,16 +44,24 @@ public class Ai_Random {
         // ゲーム数ループ
         for (int i = 0; i < numberOfGames; i++) {
             boolean continueFlag = true;
+
+            nowPosition = new int[numberOfPlayers][2];
+            board = new int[height + 2][width + 2];
+            for(int[] a : board) {
+                Arrays.fill(a, NOT_ACHIEVED);
+            }
+
             while(continueFlag){
                 for (int p = 0; p < numberOfPlayers; p++) {
                     int x0 = sc.nextInt();
                     int y0 = sc.nextInt();
                     int x1 = sc.nextInt();
                     int y1 = sc.nextInt();
-                    System.err.println(p + " | " +x0 + " " + y0 + " " + x1 + " " + y1);
+                    //System.err.println(p + " | " +x0 + " " + y0 + " " + x1 + " " + y1);
+                    move(p, x1, y1, board);
                 }
 
-                int direction = LEFT;
+                int direction = put();
                 // 戦略を実行
                 //direction = (int)(Math.random()*4) + 1;
                 System.out.println(direction);
@@ -59,13 +72,28 @@ public class Ai_Random {
             }
         }
     }
-    /*
-    public void move(int player, int direction, int[][] boad) {
-        if(direction == DEATH) {
+
+    public int put() {
+        int x = nowPosition[playerCode][0];
+        int y = nowPosition[playerCode][1];
+        if(y < height && board[y+1][x] == NOT_ACHIEVED) {
+            return UP;
+        }else if(x < width && board[y][x+1] == NOT_ACHIEVED) {
+            return RIGHT;
+        }else if(y > 1 && board[y-1][x] == NOT_ACHIEVED) {
+            return DOWN;
+        }else if(x > 1 && board[y][x-1] == NOT_ACHIEVED) {
+            return LEFT;
+        }
+        return DEATH;
+    }
+
+    public void move(int player, int moveX, int moveY, int[][] board) {
+        if(moveX == -1) {
             for(int y = 1; y <= height; y++) {
                 for(int x = 1; x <= width; x++) {
-                    if(boad[y][x] == player) {
-                        boad[y][x] = -1;
+                    if(board[y][x] == player) {
+                        board[y][x] = NOT_ACHIEVED;
                     }
                 }
             }
@@ -73,27 +101,12 @@ public class Ai_Random {
             nowPosition[player][1] = -1;
             return;
         }
-        int x = nowPosition[player][0];
-        int y = nowPosition[player][1];
-        switch(direction) {
-            case UP:
-                y++;
-                break;
-            case DOWN:
-                y--;
-                break;
-            case LEFT:
-                x--;
-                break;
-            case RIGHT:
-                x++;
-                break;
-        }
-        boad[y][x] = player;
-        nowPosition[player][0] = x;
-        nowPosition[player][1] = y;
+
+        board[moveY][moveX] = player;
+        nowPosition[player][0] = moveX;
+        nowPosition[player][1] = moveY;
     }
-    */
+
 
     /**
      * 初期化

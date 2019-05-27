@@ -294,6 +294,10 @@ public class GamePlatform {
         if (outputLevel > 0) {
             game.showPlayers();
         }
+        
+        if(isVisible) {
+            game.setVisualizerName();
+        }
 
         for(int g = 0; g < game.getNumberOfGames(); g++) {
             game.initialize();
@@ -306,7 +310,9 @@ public class GamePlatform {
             for(Player player : players) {
                 player.pointAddition();
             }
+            game.visualizerReset();
         }
+        game.dispose();
         
         return game.result();
     }
@@ -320,11 +326,6 @@ public class GamePlatform {
             }else {
                 game.sendGameFinish();
                 break;
-            }
-            try{
-                Thread.sleep(500);
-            }catch(Exception e) {
-                e.printStackTrace();
             }
         }
     }
