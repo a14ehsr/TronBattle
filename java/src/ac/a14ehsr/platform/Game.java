@@ -3,6 +3,7 @@ package ac.a14ehsr.platform;
 import java.io.IOException;
 import java.util.Arrays;
 
+import ac.a14ehsr.exception.TimeoutException;
 import ac.a14ehsr.platform.visualizer.Visualizer;
 import ac.a14ehsr.player.Player;
 
@@ -13,10 +14,8 @@ public abstract class Game {
     protected Player[] players;
     protected Visualizer visualizer;
 
-    protected static final String modeInit = "I";
-    protected static final String modeFirst = "F";
-    protected static final String modePlay = "P";
-    protected static final String modeEnd = "E";
+    private static final int CONTINUE  = 0;
+    private static final int FINISH  = 1;
 
 
     public Game(int numberOfPlayers, int numberOfGames, long timelimit, Player[] players){
@@ -104,10 +103,15 @@ public abstract class Game {
 
     void sendGameInfo() throws IOException {
         for(Player player : players) {
-            // TODO: 渡す情報のクラスを修正，もしくは　新しく作る
-            player.sendMes(modeInit + numberOfPlayers);
-            player.sendMes(modeInit + numberOfGames);
-            player.sendMes(modeInit + timelimit);
+            player.sendNum(numberOfPlayers);
+            player.sendNum(numberOfGames);
+            player.sendNum((int)timelimit);
+            player.sendNum(player.getCode());
+            try{
+                player.setName(player.receiveMes(100, 1000));
+            }catch(Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -125,4 +129,16 @@ public abstract class Game {
      * @return
      */
     abstract boolean checkContinue();
+
+    void sendGameFinish() throws IOException {
+        for(Player player : players) {
+            player.sendNum(FINISH);
+        }
+    }
+
+    void sendGameContinue() throws IOException {
+        for(Player player : players) {
+            player.sendNum(CONTINUE);
+        }
+    }
 }

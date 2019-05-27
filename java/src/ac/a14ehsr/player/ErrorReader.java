@@ -7,8 +7,10 @@ import java.io.InputStream;
  */
 class ErrorReader extends Thread {
     InputStream error;
-    public ErrorReader(InputStream is) {
+    int code;
+    public ErrorReader(InputStream is, int code) {
         error = is;
+        this.code = code;
     }
 
     public void run() {
@@ -17,7 +19,7 @@ class ErrorReader extends Thread {
             int read;
             while ((read = error.read(ch)) > 0) {
                 String s = new String(ch, 0, read);
-                System.out.print(s);
+                System.out.print("player's error code=" + code + " : " + s);
                 System.out.flush();
             }
         } catch (Exception e) {

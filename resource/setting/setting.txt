@@ -1,4 +1,4 @@
 players 2
-games 30
+games 1
 timelimit 1000
 output 2

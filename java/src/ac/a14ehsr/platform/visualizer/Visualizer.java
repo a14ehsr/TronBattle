@@ -13,6 +13,8 @@ public class Visualizer {
 
     private JPanel[][] panels;
 
+    private static final Coloe[] playerColor = {Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW};
+
     public Visualizer(int width, int height) {
         frame = new JFrame();
         
@@ -31,6 +33,15 @@ public class Visualizer {
                 panels[y][x].setBackground(Color.LIGHT_GRAY);
                 mainPanel.add(panels[y][x]);
             }
+        }
+        for(int x = 0; x < panels[0].length; x++) {
+            panels[0][x].setBackground(Color.GRAY);
+            panels[height+1][x].setBackground(Color.GRAY);
+        }
+
+        for(int y = 0; y < panels.length; y++) {
+            panels[y][0].setBackground(Color.GRAY);
+            panels[y][width + 1].setBackground(Color.GRAY);
         }
 
         frame.getContentPane().add(mainPanel,BorderLayout.CENTER);

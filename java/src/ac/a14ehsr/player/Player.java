@@ -74,6 +74,18 @@ public class Player {
         this.gamePoint = gamePoint;
     }
 
+    public void pointAddition() {
+        sumPoint += gamePoint;
+        gamePoint = 0;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
     /**
      * @param rank the rank to set
      */
@@ -96,7 +108,7 @@ public class Player {
     }
 
     public Player(Runtime runtime, String runCommand, int code) throws IOException {
-        process = PlayerProcess.of(runtime, runCommand);
+        process = PlayerProcess.of(runtime, runCommand, code);
         this.code = code;
     }
 
@@ -107,6 +119,10 @@ public class Player {
     public void sendNum(int num) throws IOException {
         process.send(num);
     }
+
+    public void sendNumArray(int[] nums) throws IOException {
+        process.send(nums);
+    } 
 
     public String receiveMes(long timeout, long timelimit) throws IOException, TimeoutException, TimeoverException {
         return process.receiveMes(timeout, timelimit);

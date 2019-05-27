@@ -17,16 +17,20 @@ public class GamePlatform {
     Options setting;
 
     public static void main(String[] args) {
-        GamePlatform platform = new GamePlatform();
+        (new GamePlatform()).run(args);
+
         
     }
 
-    private void run() {
+    private void run(String[] args) {
         setting = new Options();
+        setting.start(args);
         if(setting.isTest()) {
-
+            System.err.println("test");
+            test();
         }else{
-
+            System.err.println("not test");
+            autoRun();
         }
 
     }
@@ -54,7 +58,7 @@ public class GamePlatform {
             try {
                 for (String command : sampleCommandList) {
                     startSubProcess(setting.getNumberOfPlayers(),new String[] { playerCommand, command });
-                    run();
+                    Result result = battle(new TronBattle(setting.getNumberOfPlayers(), setting.getNumberOfGames(), setting.getTimelimit(), players, 10, 10), setting.getOutputLevel(), setting.isVisible(), setting.getTimelimit()+1000);
                     processDestroy();
                 }
                 pw.println(playerCommand);
@@ -95,7 +99,7 @@ public class GamePlatform {
             }
             try {
                 startSubProcess(numberOfPlayers,commands);
-                Result result = battle(new TronBattle(numberOfPlayers, setting.getNumberOfGames(), setting.getTimelimit(), players, 10, 10), setting.getOutputLevel(), setting.isVisible(), setting.getTimelimit()+1000);
+                Result result = battle(new TronBattle(numberOfPlayers, setting.getNumberOfGames(), setting.getTimelimit(), players, 30, 20), setting.getOutputLevel(), setting.isVisible(), setting.getTimelimit()+1000);
                 String[] resultNames = result.names;
                 for (int i = 0; i < numberOfPlayers; i++) {
                     names[matching[i]] = resultNames[i];
@@ -297,17 +301,31 @@ public class GamePlatform {
             if(outputLevel > 1) {
                 game.showGameResult();
             }
+
+            for(Player player : players) {
+                player.pointAddition();
+            }
         }
         
         return game.result();
     }
 
-    public void aGame(Game game) {
+    public void aGame(Game game) throws IOException {
         // ゲームが終了するまで続行
-        while(!game.isContinue()) {
+        while(true) {
             game.play();
+            if(game.isContinue()) {
+                game.sendGameContinue();
+            }else {
+                game.sendGameFinish();
+                break;
+            }
+            try{
+                Thread.sleep(500);
+            }catch(Exception e) {
+                e.printStackTrace();
+            }
         }
-        game.calcGameResult();
     }
 
 

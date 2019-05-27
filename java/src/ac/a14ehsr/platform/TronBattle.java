@@ -7,8 +7,10 @@ import ac.a14ehsr.exception.TimeoutException;
 import ac.a14ehsr.player.Player;
 
 public class TronBattle extends Game {
-    public static final int DEATH = -1;
-    public static final int WIN = -2;
+    public static final int DEATH = 0;
+    public static final int ALIVE = 1;
+    public static final int WIN = 2;
+
     public static final int UP = 1;
     public static final int RIGHT = 2;
     public static final int DOWN = 3;
@@ -17,14 +19,17 @@ public class TronBattle extends Game {
     private static final int NOT_ACHIEVED = -1;
     private static final int WALL = -2;
 
+
+
     private int width;
     private int height;
     private int[][] board; // 1 <= x <= width, 1 <= y <= height
     private int[][] nowPosition; // position of players. nowPosition[player] = {x,y}
+    private int[][] initialPosition; // position of players. nowPosition[player] = {x,y}
     private int aliveCount;
 
     public TronBattle(int numberOfPlayers, int numberOfGames, long timelimit, Player[] players, int width, int height) {
-        super(numberOfGames,numberOfPlayers, timelimit, players);
+        super(numberOfPlayers, numberOfGames, timelimit, players);
         board = makeBoard();
         this.width = width;
         this.height = height;
@@ -53,6 +58,7 @@ public class TronBattle extends Game {
     @Override
     void initialize() throws IOException {
         board = makeBoard();
+        initialPosition = new int[numberOfPlayers][2];
         nowPosition = new int[numberOfPlayers][2];
         for(int p = 0; p < numberOfPlayers; p++) {
             int[] tmp = new int[]{-1,-1};
@@ -67,13 +73,11 @@ public class TronBattle extends Game {
                     }
                 }
             } while(!check);
-            nowPosition[p] = tmp;
+            initialPosition[p] = tmp.clone();
+            nowPosition[p] = tmp.clone();
         }
-        // 初期座標送信
         for(Player player : players) {
-            for(int p = 0; p < numberOfPlayers; p++) {
-                player.sendMes(modeFirst + nowPosition[p][0] + "-" + nowPosition[p][1]);
-            }
+            player.setStatus(ALIVE);
             player.setGamePoint(numberOfPlayers);
         }
         aliveCount = numberOfPlayers;
@@ -81,7 +85,17 @@ public class TronBattle extends Game {
 
     @Override
     boolean isContinue() {
-        return !Arrays.stream(players).anyMatch(player -> player.getStatus() == WIN);
+        //System.err.println("isConti:"+ Arrays.stream(players).filter(player -> player.getStatus() == ALIVE).count());
+        return Arrays.stream(players).filter(player -> player.getStatus() == ALIVE).count() > 1;
+    }
+
+    @Override
+    void sendGameInfo() throws IOException {
+        super.sendGameInfo();
+        for(Player player : players) {
+            player.sendNum(width);
+            player.sendNum(height);
+        }
     }
     
     @Override
@@ -101,21 +115,37 @@ public class TronBattle extends Game {
 
     @Override
     void play() {
-        for(int p = 0; p < numberOfPlayers && isContinue(); p++) {
+        for(int p = 0; p < numberOfPlayers; p++) {
             Player player = players[p];
-            int direction = put(player);
-            String mode = !checkContinue() ? modeEnd : modePlay;
-
             for(int k = 0; k < numberOfPlayers; k++) {
                 try{
-                    players[k].sendMes(mode + direction);
+                    player.sendNumArray(getPlayerSendNumPair(players[k]));
                 } catch(IOException e) {
                     System.out.println("送信時エラー");
                     e.printStackTrace();
                     kill(players[k]);
                 }
             }
+
+            int direction = put(player);
         }
+        //Arrays.stream(players).forEach(p -> System.err.print(p.getGamePoint() + " "));
+        //System.err.println();
+        if(aliveCount == 1) {
+            //System.err.println("優勝者判定");
+            //Arrays.stream(players).filter(p -> p.getStatus() == ALIVE).forEach(System.out::println);
+            Arrays.stream(players).filter(p -> p.getStatus() == ALIVE).forEach(p -> p.setGamePoint(1));
+            //Arrays.stream(players).forEach(p -> System.err.print(p.getGamePoint() + " "));
+        }
+    }
+
+    int[] getPlayerSendNumPair(Player player) {
+        if(player.getStatus() == DEATH) {
+            //System.err.println("p:" + player.getCode() + " :  {-1}");
+            return new int[]{-1,-1,-1,-1};
+        }
+        int pCode = player.getCode();
+        return new int[]{initialPosition[pCode][0], initialPosition[pCode][1], nowPosition[pCode][0], nowPosition[pCode][1]};
     }
 
     int put(Player player) {
@@ -123,10 +153,12 @@ public class TronBattle extends Game {
         try {
             direction = player.receiveNum(timelimit+1000, timelimit);
         }catch(Exception e) {
+            e.printStackTrace();
             kill(player);
             return DEATH;
         }
         if(player.getStatus() == DEATH) {
+            //System.err.println("もともと死んでる");
             return DEATH;
         }
         int playerCode = player.getCode();
@@ -163,8 +195,7 @@ public class TronBattle extends Game {
         }
         board[y][x] = player.getCode();
         nowPosition[player.getCode()] = new int[]{x,y};
-        return direction;
-        
+        return direction;   
     }
 
 
@@ -204,7 +235,7 @@ public class TronBattle extends Game {
         }
         System.out.println("|");
 
-        for(int y = height; y > 0; y--) {
+        for(int y = 1; y <= height; y++) {
             System.out.print("|");
             for(int x = 1; x <= width; x++) {
                 System.out.printf("%2d ",board[y][x]);
@@ -225,6 +256,13 @@ public class TronBattle extends Game {
             System.out.printf("%2d ",player.getGamePoint());
         }
         System.out.println();
+    }
+
+    void sendSize() throws IOException {
+        for(Player player : players) {
+            player.sendNum(width);
+            player.sendNum(height);
+        }
     }
 
     /**

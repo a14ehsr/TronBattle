@@ -25,14 +25,14 @@ public class PlayerProcess {
     private String receiveString;
 
 
-    static PlayerProcess of(Runtime runtime, String runCommand) throws IOException {
+    static PlayerProcess of(Runtime runtime, String runCommand, int code) throws IOException {
         PlayerProcess playerProcess = new PlayerProcess();
         playerProcess.process = runtime.exec(runCommand);
         playerProcess.outputStream = playerProcess.process.getOutputStream();
         playerProcess.inputStream = playerProcess.process.getInputStream();
         playerProcess.bufferedReader = new BufferedReader(new InputStreamReader(playerProcess.inputStream));
 
-        new ErrorReader(playerProcess.process.getErrorStream()).start();
+        new ErrorReader(playerProcess.process.getErrorStream(), code).start();
 
         if (!playerProcess.process.isAlive())
             throw new IOException("次のサブプロセスを起動できませんでした．:" + playerProcess.process);
@@ -56,6 +56,14 @@ public class PlayerProcess {
      */
     void send(String mes) throws IOException {
         outputStream.write((mes + "\n").getBytes()); // 初期座標を渡す
+        outputStream.flush();
+    }
+
+    void send(int[] nums) throws IOException {
+        for(int i = 0; i < nums.length-1; i++) {
+            outputStream.write((nums[i] + " ").getBytes()); // 初期座標を渡す
+        }
+        outputStream.write((nums[nums.length-1] + "\n").getBytes()); // 初期座標を渡す
         outputStream.flush();
     }
 

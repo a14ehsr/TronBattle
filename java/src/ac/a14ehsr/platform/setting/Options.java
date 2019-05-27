@@ -51,6 +51,7 @@ import java.io.IOException;
             e.printStackTrace();
         }
         String common = javaRunCommand + " " + javaRunOptions + " -classpath java/src/ ac.a14ehsr.sample_ai.";
+        
         sampleCommandList.add(common + "Ai_Random");
         sampleCommandList.add(common + "Ai_RandomCopy");
         /*
@@ -59,11 +60,10 @@ import java.io.IOException;
         sampleCommandList.add(common + "P_8Neighbours");
         sampleCommandList.add(common + "P_Chaise");
         sampleCommandList.add(common + "P_Copy");
-
-        testSampleCommandList.add(common + "P_8Neighbours");
-        testSampleCommandList.add(common + "P_Chaise");
-        testSampleCommandList.add(common + "P_Copy");
         */
+
+        testSampleCommandList.add(common + "Ai_Random");
+        testSampleCommandList.add(common + "Ai_RandomCopy");
     }
 
     public List<String> getSampleCommandList() {
@@ -229,9 +229,10 @@ import java.io.IOException;
                 case "-test":
                     numberOfGames = Integer.parseInt(options[i + 1]);
                     test = true;
+                    System.err.println("test on");
                     readCommandList(commandList, "resource/command_list/command_list.txt");
                     outputLevel = 0;
-                    i += 2;
+                    i += 1;
                     break;
 
                 default:

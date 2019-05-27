@@ -6,7 +6,10 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Ai_Random {
-    private static final int DEATH = -1;
+    private static final int CONTINUE  = 0;
+    private static final int FINISH  = 1;
+
+    private static final int DEATH = 0;
     private static final int UP = 1;
     private static final int RIGHT = 2;
     private static final int DOWN = 3;
@@ -14,6 +17,7 @@ public class Ai_Random {
 
     private int numberOfPlayers;
     private int numberOfGames;
+    private int timelimit;
     private int width;
     private int height;
     private int playerCode; // 0始まりの識別番号
@@ -34,53 +38,28 @@ public class Ai_Random {
 
         // ゲーム数ループ
         for (int i = 0; i < numberOfGames; i++) {
-            System.err.println("PRゲームループHEAD");
-            int[][] boad = new int[height + 2][width + 2];
-            for(int[] a : boad) {
-                Arrays.fill(a, -1);
-            }
-            nowPosition = new int[numberOfPlayers][2];
-            List<Integer> alivePlayers = new ArrayList<>();
-            int aliveCount = numberOfPlayers;
-            boolean[] isAlive = new boolean[numberOfPlayers];
-            Arrays.fill(isAlive, true);
-            for (int p = 0; p < numberOfPlayers; p++) {
-                nowPosition[p][0] = sc.nextInt();
-                nowPosition[p][1] = sc.nextInt();
-                alivePlayers.add(p);
-            }
-            System.err.println("PR:初期位置" + nowPosition[playerCode][0] + " - " + nowPosition[playerCode][1]);
-            while(numberOfPlayers == 1 || aliveCount > 1){
+            boolean continueFlag = true;
+            while(continueFlag){
                 for (int p = 0; p < numberOfPlayers; p++) {
-                    if (p == playerCode) 
-                    {
-                        if(!isAlive[p]) {
-                            System.out.println(DEATH);
-                        }else{
-                            int direction = 0;
-                            // 戦略を実行
-                            direction = (int)(Math.random()*4) + 1;
-                            System.out.println(direction);
-                        }
-                    }
-                    System.err.println("PR"+ playerCode +" : "+ p);
-
-                    int direction = sc.nextInt();
-                    if(direction != DEATH) {
-                        move(p, direction, boad);
-                    }else if(isAlive[p]){
-                        aliveCount--;
-                        move(p, direction, boad);
-                    }
-                }
-                if((numberOfPlayers > 1 && aliveCount == 1) || (numberOfPlayers == 1 && aliveCount == 0)) {
-                    break;
+                    int x0 = sc.nextInt();
+                    int y0 = sc.nextInt();
+                    int x1 = sc.nextInt();
+                    int y1 = sc.nextInt();
+                    System.err.println(p + " | " +x0 + " " + y0 + " " + x1 + " " + y1);
                 }
 
+                int direction = LEFT;
+                // 戦略を実行
+                //direction = (int)(Math.random()*4) + 1;
+                System.out.println(direction);
+
+                if(sc.nextInt() == FINISH) {
+                    continueFlag = false;
+                }
             }
         }
     }
-
+    /*
     public void move(int player, int direction, int[][] boad) {
         if(direction == DEATH) {
             for(int y = 1; y <= height; y++) {
@@ -114,6 +93,7 @@ public class Ai_Random {
         nowPosition[player][0] = x;
         nowPosition[player][1] = y;
     }
+    */
 
     /**
      * 初期化
@@ -121,10 +101,13 @@ public class Ai_Random {
     private void initialize() {
         numberOfPlayers = sc.nextInt();
         numberOfGames = sc.nextInt();
+        timelimit = sc.nextInt();
+        playerCode = sc.nextInt();
+
+        System.out.println(playerName);
+
         width = sc.nextInt();
         height = sc.nextInt();
-        playerCode = sc.nextInt();
-        System.out.println(playerName);
     }
 
 }
