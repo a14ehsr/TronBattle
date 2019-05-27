@@ -84,6 +84,7 @@ public class Player {
      */
     public void setName(String name) {
         this.name = name;
+        process.setName(name);
     }
 
     /**
@@ -108,7 +109,7 @@ public class Player {
     }
 
     public Player(Runtime runtime, String runCommand, int code) throws IOException {
-        process = PlayerProcess.of(runtime, runCommand, code);
+        process = new PlayerProcess(runtime, runCommand, code);
         this.code = code;
     }
 

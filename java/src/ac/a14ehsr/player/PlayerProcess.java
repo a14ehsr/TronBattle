@@ -15,6 +15,7 @@ public class PlayerProcess {
     private InputStream inputStream;
     private OutputStream outputStream;
     private BufferedReader bufferedReader;
+    private ErrorReader errorReader;
 
     private String name;
 
@@ -25,18 +26,17 @@ public class PlayerProcess {
     private String receiveString;
 
 
-    static PlayerProcess of(Runtime runtime, String runCommand, int code) throws IOException {
-        PlayerProcess playerProcess = new PlayerProcess();
-        playerProcess.process = runtime.exec(runCommand);
-        playerProcess.outputStream = playerProcess.process.getOutputStream();
-        playerProcess.inputStream = playerProcess.process.getInputStream();
-        playerProcess.bufferedReader = new BufferedReader(new InputStreamReader(playerProcess.inputStream));
+    PlayerProcess(Runtime runtime, String runCommand, int code) throws IOException {
+        process = runtime.exec(runCommand);
+        outputStream = process.getOutputStream();
+        inputStream = process.getInputStream();
+        bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
 
-        new ErrorReader(playerProcess.process.getErrorStream(), code).start();
+        errorReader = new ErrorReader(process.getErrorStream());
+        errorReader.start();
 
-        if (!playerProcess.process.isAlive())
-            throw new IOException("次のサブプロセスを起動できませんでした．:" + playerProcess.process);
-        return playerProcess;
+        if (!process.isAlive())
+            throw new IOException("次のサブプロセスを起動できませんでした．:" + process);
     }
 
     /**
@@ -46,6 +46,14 @@ public class PlayerProcess {
      */
     void send(int num) throws IOException {
         send(String.valueOf(num));
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+        errorReader.setPlayerName(name);
     }
 
     /**

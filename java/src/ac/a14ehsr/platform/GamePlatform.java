@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 import ac.a14ehsr.platform.setting.Options;
+import ac.a14ehsr.platform.visualizer.Visualizer;
 import ac.a14ehsr.player.Player;
 
 public class GamePlatform {
@@ -58,7 +59,7 @@ public class GamePlatform {
             try {
                 for (String command : sampleCommandList) {
                     startSubProcess(setting.getNumberOfPlayers(),new String[] { playerCommand, command });
-                    Result result = battle(new TronBattle(setting.getNumberOfPlayers(), setting.getNumberOfGames(), setting.getTimelimit(), players, 10, 10), setting.getOutputLevel(), setting.isVisible(), setting.getTimelimit()+1000);
+                    Result result = battle(new TronBattle(setting.getNumberOfPlayers(), setting.getNumberOfGames(), setting.getTimelimit(), setting.isVisible(), players, 10, 10), setting.getOutputLevel(), setting.isVisible(), setting.getTimelimit()+1000);
                     processDestroy();
                 }
                 pw.println(playerCommand);
@@ -99,7 +100,7 @@ public class GamePlatform {
             }
             try {
                 startSubProcess(numberOfPlayers,commands);
-                Result result = battle(new TronBattle(numberOfPlayers, setting.getNumberOfGames(), setting.getTimelimit(), players, 30, 20), setting.getOutputLevel(), setting.isVisible(), setting.getTimelimit()+1000);
+                Result result = battle(new TronBattle(numberOfPlayers, setting.getNumberOfGames(), setting.getTimelimit(), setting.isVisible(), players, 30, 20), setting.getOutputLevel(), setting.isVisible(), setting.getTimelimit()+1000);
                 String[] resultNames = result.names;
                 for (int i = 0; i < numberOfPlayers; i++) {
                     names[matching[i]] = resultNames[i];

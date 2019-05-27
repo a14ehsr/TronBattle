@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import ac.a14ehsr.exception.TimeoutException;
+import ac.a14ehsr.platform.visualizer.Visualizer;
 import ac.a14ehsr.player.Player;
 
 public class TronBattle extends Game {
@@ -28,11 +29,14 @@ public class TronBattle extends Game {
     private int[][] initialPosition; // position of players. nowPosition[player] = {x,y}
     private int aliveCount;
 
-    public TronBattle(int numberOfPlayers, int numberOfGames, long timelimit, Player[] players, int width, int height) {
-        super(numberOfPlayers, numberOfGames, timelimit, players);
+    public TronBattle(int numberOfPlayers, int numberOfGames, long timelimit, boolean isVisible, Player[] players, int width, int height) {
+        super(numberOfPlayers, numberOfGames, timelimit, isVisible, players);
         board = makeBoard();
         this.width = width;
         this.height = height;
+        if(isVisible) {
+            setVisualizer(new Visualizer(width, height));
+        }
     }
 
     /**
@@ -128,6 +132,10 @@ public class TronBattle extends Game {
             }
 
             int direction = put(player);
+            int code = player.getCode();
+            if(nowPosition[code][0] != -1 && isVisible) {
+                visualizer.setColor(code, nowPosition[code][0], nowPosition[code][1]);
+            }
         }
         //Arrays.stream(players).forEach(p -> System.err.print(p.getGamePoint() + " "));
         //System.err.println();
@@ -275,6 +283,9 @@ public class TronBattle extends Game {
             for(int x = 1; x <= width; x++) {
                 if(board[y][x] == code) {
                     board[y][x] = -1;
+                    if(isVisible) {
+                        visualizer.relese(player.getCode(), x, y);
+                    }
                 }
             }
         }

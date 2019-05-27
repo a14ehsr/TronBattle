@@ -7,10 +7,17 @@ import java.io.InputStream;
  */
 class ErrorReader extends Thread {
     InputStream error;
-    int code;
-    public ErrorReader(InputStream is, int code) {
+    String playerName;
+    public ErrorReader(InputStream is) {
         error = is;
-        this.code = code;
+    }
+
+    /**
+     * @param playerName the playerName to set
+     */
+    public void setPlayerName(String playerName) {
+        System.err.println("SEDFASFGESJPFAJF" + playerName);
+        this.playerName = playerName;
     }
 
     public void run() {
@@ -19,7 +26,7 @@ class ErrorReader extends Thread {
             int read;
             while ((read = error.read(ch)) > 0) {
                 String s = new String(ch, 0, read);
-                System.out.print("player's error code=" + code + " : " + s);
+                System.out.print(playerName+"'s error: " + s);
                 System.out.flush();
             }
         } catch (Exception e) {

@@ -12,17 +12,20 @@ public abstract class Game {
     protected int numberOfGames;
     protected long timelimit;
     protected Player[] players;
+    protected boolean isVisible;
     protected Visualizer visualizer;
 
     private static final int CONTINUE  = 0;
     private static final int FINISH  = 1;
 
 
-    public Game(int numberOfPlayers, int numberOfGames, long timelimit, Player[] players){
+    public Game(int numberOfPlayers, int numberOfGames, long timelimit, boolean isVisible, Player[] players){
         this.numberOfGames = numberOfGames;
         this.numberOfPlayers = numberOfPlayers;
         this.timelimit = timelimit;
         this.players = players;
+        this.isVisible = isVisible;
+        visualizer = null;
     }
 
     /**
