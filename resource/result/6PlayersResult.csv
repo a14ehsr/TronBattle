@@ -1,7 +1,0 @@
-,,(0-1-2-3-4),(0-1-2-3-5),(0-1-2-4-5),(0-1-3-4-5),(0-2-3-4-5),(1-2-3-4-5),r1,r2,r3,r4,r5,r6,VOID,(times)
-0,null,null,null,null,null,null,VOID,0,0,0,0,0,0,1
-1,null,null,null,null,null,VOID,null,0,0,0,0,0,0,1
-2,null,null,null,null,VOID,null,null,0,0,0,0,0,0,1
-3,null,null,null,VOID,null,null,null,0,0,0,0,0,0,1
-4,null,null,VOID,null,null,null,null,0,0,0,0,0,0,1
-5,null,VOID,null,null,null,null,null,0,0,0,0,0,0,1
