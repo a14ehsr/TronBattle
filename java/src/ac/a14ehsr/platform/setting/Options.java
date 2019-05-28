@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import java.io.File;
 import java.io.IOException;
-
+// 1 3 6 10 
 
  public class Options {
     private List<String> commandList;
@@ -53,6 +53,8 @@ import java.io.IOException;
         String common = javaRunCommand + " " + javaRunOptions + " -classpath java/src/ ac.a14ehsr.sample_ai.";
         
         sampleCommandList.add(common + "Ai_Random");
+        sampleCommandList.add(common + "Ai_Random");
+        sampleCommandList.add(common + "Ai_Random");
         sampleCommandList.add(common + "Ai_RandomCopy");
         /*
         sampleCommandList.add(common + "P_Max");
@@ -62,7 +64,7 @@ import java.io.IOException;
         sampleCommandList.add(common + "P_Copy");
         */
 
-        testSampleCommandList.add(common + "Ai_Random");
+        testSampleCommandList.add(common + "Ai_Random");        
         testSampleCommandList.add(common + "Ai_RandomCopy");
     }
 
