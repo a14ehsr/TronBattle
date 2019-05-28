@@ -8,6 +8,14 @@ Copyright © 2019年 K.Hirano All rights reserved.
 
 
 
+# 0.ゲームの説明
+
+詳細は省略する．以下を参照すること．
+
+https://www.codingame.com/multiplayer/bot-programming/tron-battle
+
+
+
 ## 1. 環境の準備
 
 ここでは，環境の準備をしながら対戦の実行方法の一例を紹介します．
