@@ -1,4 +1,0 @@
-./ai_programs/P_SampleC
-./ai_programs/P_SampleCPP
-java  -classpath ./ai_programs P_SampleJava
-python3 ./ai_programs/P_SamplePython.py
