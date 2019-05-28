@@ -1,11 +1,7 @@
-package ac.a14ehsr.sample_ai;
-
 import java.util.Arrays;
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Ai_RandomCopy {
+public class P_SampleJava {
     private static final int CONTINUE  = 0;
     private static final int FINISH  = 1;
 
@@ -16,58 +12,68 @@ public class Ai_RandomCopy {
     private static final int LEFT = 4;
 
     private static final int NOT_ACHIEVED = -1;
-    private static final int WALL = -2;
 
     private int numberOfPlayers;
     private int numberOfGames;
-    private int timelimit;
+    private int timelimit; // millisecond
     private int width;
     private int height;
-    private int playerCode; // 0始まりの識別番号
-    private Scanner sc;
-    static final String playerName = "P_RandomCopy";
+    private int playerCode; // your player code. 0 <= playerCode < numberOfPlayers
+    static final String playerName = "Java_Sample"; // Do not include spaces in your name.
     
-    private int[][] nowPosition;
+    /**
+     * currentPostion[p] = {p.x, p.y}
+     * Payer p's current location is (p.x, p.y).
+     */
+    private int[][] currentPosition;
+
+    /**
+     * board[y][x] = status
+     * Status is either NOT_ACHIEVED or player's code.
+     * Be careful position status of location (x,y) saved board[y][x]
+     * Array size is (height+2) * (width+2) bad Board size is height * width.
+     * 1 <= x <= width, 1 <= y <= height.
+     */
     private int[][] board;
+    
+    private Scanner sc;
 
     public static void main(String[] args) {
-        (new Ai_RandomCopy()).run();
+        (new P_SampleJava()).run();
     }
 
-        /**
-     * ゲーム実行メソッド
+    /**
+     * Game loop.
      */
     public void run() {
         sc = new Scanner(System.in);
         initialize();
 
-        // ゲーム数ループ
         for (int i = 0; i < numberOfGames; i++) {
             boolean continueFlag = true;
 
-            nowPosition = new int[numberOfPlayers][2];
+            // initialize board and players position
+            currentPosition = new int[numberOfPlayers][2];
             board = new int[height + 2][width + 2];
             for(int[] a : board) {
                 Arrays.fill(a, NOT_ACHIEVED);
             }
 
             while(continueFlag){
+                // receive all player positions.
                 for (int p = 0; p < numberOfPlayers; p++) {
                     int x0 = sc.nextInt();
                     int y0 = sc.nextInt();
                     int x1 = sc.nextInt();
                     int y1 = sc.nextInt();
-                    if(x0 != -1){
-                        board[y0][x0] = p;
-                    }
-                    move(p, x1, y1, board);
+                    move(p, x0, y0, x1, y1);
                 }
 
+                // send your strategy.
                 int direction = put();
-                // 戦略を実行
-                //direction = (int)(Math.random()*4) + 1;
                 System.out.println(direction);
 
+                // receive continue flag.
                 if(sc.nextInt() == FINISH) {
                     continueFlag = false;
                 }
@@ -75,9 +81,16 @@ public class Ai_RandomCopy {
         }
     }
 
+    /**
+     * Your strategy
+     * @return Direction {UP, DOWN, RIGHT, LEFT} or other parameter meaning you are dead.
+     */
     public int put() {
-        int x = nowPosition[playerCode][0];
-        int y = nowPosition[playerCode][1];
+        int x = currentPosition[playerCode][0];
+        int y = currentPosition[playerCode][1];
+        if(x == -1 && y == -1) {
+            return DEATH;
+        }
         if(y < height && board[y+1][x] == NOT_ACHIEVED) {
             return UP;
         }else if(x < width && board[y][x+1] == NOT_ACHIEVED) {
@@ -90,7 +103,15 @@ public class Ai_RandomCopy {
         return DEATH;
     }
 
-    public void move(int player, int moveX, int moveY, int[][] board) {
+    /**
+     * Move player to point (moveX, moveY) and set first location.
+     * @param player
+     * @param initX
+     * @param initY
+     * @param moveX
+     * @param moveY
+     */
+    public void move(int player, int initX, int initY, int moveX, int moveY) {
         if(moveX == -1) {
             for(int y = 1; y <= height; y++) {
                 for(int x = 1; x <= width; x++) {
@@ -99,19 +120,19 @@ public class Ai_RandomCopy {
                     }
                 }
             }
-            nowPosition[player][0] = -1;
-            nowPosition[player][1] = -1;
+            currentPosition[player][0] = -1;
+            currentPosition[player][1] = -1;
             return;
         }
-
+        board[initY][initX] = player;
         board[moveY][moveX] = player;
-        nowPosition[player][0] = moveX;
-        nowPosition[player][1] = moveY;
+        currentPosition[player][0] = moveX;
+        currentPosition[player][1] = moveY;
     }
 
 
     /**
-     * 初期化
+     * input parameters and send your name.
      */
     private void initialize() {
         numberOfPlayers = sc.nextInt();

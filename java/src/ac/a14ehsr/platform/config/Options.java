@@ -1,13 +1,12 @@
-package ac.a14ehsr.platform.setting;
+package ac.a14ehsr.platform.config;
 
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.io.File;
 import java.io.IOException;
-// 1 3 6 10 
 
- public class Options {
+public class Options {
     private List<String> commandList;
     private List<String> sampleCommandList;
     private List<String> testSampleCommandList;
@@ -27,9 +26,9 @@ import java.io.IOException;
         testSampleCommandList = new ArrayList<>();
 
         try {
-            defaultSetting();
+            defaultConfig();
         } catch (Exception e) {
-            System.err.println("settingファイルの様式が規定通りになっていません．");
+            System.err.println("configファイルの様式が規定通りになっていません．");
             System.err.println("起動を中止します．");
             e.printStackTrace();
             System.exit(0);
@@ -37,13 +36,13 @@ import java.io.IOException;
         String javaRunCommand = "";
         String javaRunOptions = "";
         try {
-            Scanner tmpsc = new Scanner(new File("resource/setting/java/run_command.txt"));
+            Scanner tmpsc = new Scanner(new File("resource/config/java/run_command.txt"));
             javaRunCommand = tmpsc.next();
         } catch (IOException e) {
             e.printStackTrace();
         }
         try {
-            Scanner tmpsc = new Scanner(new File("resource/setting/java/run_options.txt"));
+            Scanner tmpsc = new Scanner(new File("resource/config/java/run_options.txt"));
             if (tmpsc.hasNext()) {
                 javaRunOptions = tmpsc.next();
             }
@@ -53,9 +52,6 @@ import java.io.IOException;
         String common = javaRunCommand + " " + javaRunOptions + " -classpath java/src/ ac.a14ehsr.sample_ai.";
         
         sampleCommandList.add(common + "Ai_Random");
-        sampleCommandList.add(common + "Ai_Random");
-        sampleCommandList.add(common + "Ai_Random");
-        sampleCommandList.add(common + "Ai_RandomCopy");
         /*
         sampleCommandList.add(common + "P_Max");
         sampleCommandList.add(common + "P_4Neighbours");
@@ -124,11 +120,11 @@ import java.io.IOException;
      * 
      * @throws Exception 設定ファイルの様式違いやその他のException
      */
-    void defaultSetting() throws Exception {
-        String settingFilePath = "resource/setting/setting.txt";
+    void defaultConfig() throws Exception {
+        String configFilePath = "resource/config/config.txt";
         Scanner sc = null;
         try {
-            sc = new Scanner(new File(settingFilePath));
+            sc = new Scanner(new File(configFilePath));
         } catch (Exception e) {
             e.printStackTrace();
         }

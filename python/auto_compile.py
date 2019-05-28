@@ -15,7 +15,7 @@ def oneLineRead(path):
 	file.close()
 	return str
 
-compiler_setting_path = 'resource/setting/'
+compiler_setting_path = 'resource/config/'
 c_compile_command = oneLineRead(compiler_setting_path + 'c/compile_command.txt')
 c_compile_options = oneLineRead(compiler_setting_path + 'c/compile_options.txt')
 cpp_compile_command = oneLineRead(compiler_setting_path + 'cpp/compile_command.txt')

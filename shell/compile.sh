@@ -1,13 +1,12 @@
 #!/bin/bash
 
-command=`cat resource/setting/java/compile_command.txt`
-options=`cat resource/setting/java/compile_options.txt`
+command=`cat resource/config/java/compile_command.txt`
+options=`cat resource/config/java/compile_options.txt`
 cd java/src
 
 ${command} ${options} ac/a14ehsr/player/PlayerProcess.java
 ${command} ${options} ac/a14ehsr/platform/GamePlatform.java
 ${command} ${options} ac/a14ehsr/sample_ai/Ai_Random.java
-${command} ${options} ac/a14ehsr/sample_ai/Ai_RandomCopy.java
 #${command} ${options} ac/a14ehsr/sample_ai/P_Max.java
 #${command} ${options} ac/a14ehsr/sample_ai/P_4Neighbours.java
 #${command} ${options} ac/a14ehsr/sample_ai/P_8Neighbours.java

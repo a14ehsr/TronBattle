@@ -19,7 +19,7 @@ public class Visualizer {
     private int height;
     private int width;
 
-    private static final Color[] playerColor = {Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW};
+    private static final Color[] playerColor = {Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW, Color.PINK, Color.ORANGE};
     private static final Color notAchieve = Color.LIGHT_GRAY;
 
     public Visualizer(int width, int height) {
@@ -58,6 +58,7 @@ public class Visualizer {
         frame.getContentPane().add(mainPanel,BorderLayout.CENTER);
 
         namePanel = new JPanel();
+        namePanel.setBackground(Color.BLACK);
         frame.getContentPane().add(namePanel,BorderLayout.NORTH);
 
     }
@@ -92,5 +93,16 @@ public class Visualizer {
                 panels[y][x].setBackground(notAchieve);
             }
         }       
+    }
+
+    public void validate() {
+        for(int y = 0; y < panels.length; y++) {
+            for(int x = 0; x < panels[y].length; x++) {
+                panels[y][x].repaint();
+            }
+        }
+        mainPanel.repaint();
+        mainPanel.validate();
+        frame.validate();
     }
 }

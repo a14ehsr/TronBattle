@@ -25,7 +25,7 @@ public class Ai_Random {
     private int height;
     private int playerCode; // 0始まりの識別番号
     private Scanner sc;
-    static final String playerName = "P_Random";
+    static final String playerName = "Sample_Random";
     
     private int[][] nowPosition;
     private int[][] board;
@@ -57,11 +57,8 @@ public class Ai_Random {
                     int y0 = sc.nextInt();
                     int x1 = sc.nextInt();
                     int y1 = sc.nextInt();
-                    if(x0 != -1){
-                        board[y0][x0] = p;
-                    }
                     //System.err.println(p + " | " +x0 + " " + y0 + " " + x1 + " " + y1);
-                    move(p, x1, y1, board);
+                    move(p, x0, y0, x1, y1);
                 }
 
                 int direction = put();
@@ -79,6 +76,9 @@ public class Ai_Random {
     public int put() {
         int x = nowPosition[playerCode][0];
         int y = nowPosition[playerCode][1];
+        if(x == -1 && y == -1) {
+            return DEATH;
+        }
         if(y < height && board[y+1][x] == NOT_ACHIEVED) {
             return UP;
         }else if(x < width && board[y][x+1] == NOT_ACHIEVED) {
@@ -90,8 +90,15 @@ public class Ai_Random {
         }
         return DEATH;
     }
-
-    public void move(int player, int moveX, int moveY, int[][] board) {
+/**
+     * Move player to point (moveX, moveY) and set first location.
+     * @param player
+     * @param initX
+     * @param initY
+     * @param moveX
+     * @param moveY
+     */
+    public void move(int player, int initX, int initY, int moveX, int moveY) {
         if(moveX == -1) {
             for(int y = 1; y <= height; y++) {
                 for(int x = 1; x <= width; x++) {
@@ -104,6 +111,7 @@ public class Ai_Random {
             nowPosition[player][1] = -1;
             return;
         }
+        board[initY][initX] = player;
 
         board[moveY][moveX] = player;
         nowPosition[player][0] = moveX;

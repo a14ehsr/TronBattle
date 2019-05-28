@@ -1,4 +1,0 @@
-players 2
-games 2
-timelimit 1000
-output 2

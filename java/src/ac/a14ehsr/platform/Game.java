@@ -123,8 +123,9 @@ public abstract class Game {
             player.sendNum((int)timelimit);
             player.sendNum(player.getCode());
             try{
-                player.setName(player.receiveMes(100, 1000));
+                player.setName(player.receiveMes(1000, 1000));
             }catch(Exception e) {
+                System.err.println("SEND GAME INFO ERROR");
                 e.printStackTrace();
             }
         }

@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import ac.a14ehsr.platform.setting.Options;
+import ac.a14ehsr.platform.config.Options;
 import ac.a14ehsr.platform.visualizer.Visualizer;
 import ac.a14ehsr.player.Player;
 

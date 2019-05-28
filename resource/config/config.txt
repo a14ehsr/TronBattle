@@ -1,0 +1,4 @@
+players 2
+games 10
+timelimit 100
+output 1

@@ -27,6 +27,7 @@ public class TronBattle extends Game {
     private int[][] nowPosition; // position of players. nowPosition[player] = {x,y}
     private int[][] initialPosition; // position of players. nowPosition[player] = {x,y}
     private int aliveCount;
+    private int deathCount;
 
     public TronBattle(int numberOfPlayers, int numberOfGames, long timelimit, boolean isVisible, int outputLevel, Player[] players, int width, int height) {
         super(numberOfPlayers, numberOfGames, timelimit, isVisible, outputLevel, players);
@@ -89,6 +90,7 @@ public class TronBattle extends Game {
             player.setGamePoint(numberOfPlayers);
         }
         aliveCount = numberOfPlayers;
+        deathCount = 0;
     }
 
     @Override
@@ -153,7 +155,8 @@ public class TronBattle extends Game {
         if(aliveCount == 1) {
             //System.err.println("優勝者判定");
             //Arrays.stream(players).filter(p -> p.getStatus() == ALIVE).forEach(System.out::println);
-            Arrays.stream(players).filter(p -> p.getStatus() == ALIVE).forEach(p -> p.setGamePoint(1));
+            int[] points = {1,3,6,10,15,25};
+            Arrays.stream(players).filter(p -> p.getStatus() == ALIVE).forEach(p -> p.setGamePoint(points[deathCount]));
             //Arrays.stream(players).forEach(p -> System.err.print(p.getGamePoint() + " "));
         }
     }
@@ -197,18 +200,24 @@ public class TronBattle extends Game {
                 x++;
                 break;
             default:
-                System.out.println("存在しない移動パターンの値が入力されました　 | プレイヤー:" + player.getName());
+                if(outputLevel >= 2){
+                    System.out.println("存在しない移動パターンの値が入力されました　 | プレイヤー:" + player.getName());
+                }
                 kill(player);
                 return DEATH;       
         }
 
         if(y < 0 || y > board.length || x < 0 || x > board[y].length || board[y][x] == WALL) {
-            System.out.println("ボードの範囲外に移動しようとしました | プレイヤー:" + player.getName());
+            if(outputLevel >= 2){
+                System.out.println("ボードの範囲外に移動しようとしました | プレイヤー:" + player.getName());
+            }
             kill(player);
             return DEATH;
         }
         if(board[y][x] != NOT_ACHIEVED) {
-            System.out.println("獲得済みのマスに移動しようとしました | プレイヤー:" + player.getName());
+            if(outputLevel >= 2){
+                System.out.println("獲得済みのマスに移動しようとしました | プレイヤー:" + player.getName());
+            }
             kill(player);
             return DEATH;
         }
@@ -225,9 +234,18 @@ public class TronBattle extends Game {
      * @param player
      */
     void kill(Player player) {
+        int[] points = {1,3,6,10,15,25};
         player.setStatus(DEATH);
-        player.setGamePoint(aliveCount--);
+        player.setGamePoint(points[deathCount++]);
+        aliveCount--;
         nowPosition[player.getCode()] = new int[]{-1,-1};
+        if(isVisible) {
+            try {
+                Thread.sleep(20);
+            }catch(InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         deletePlayer(player);
     }
 
@@ -297,6 +315,14 @@ public class TronBattle extends Game {
                         visualizer.relese(player.getCode(), x, y);
                     }
                 }
+            }
+        }
+        if(isVisible) {
+            visualizer.validate();
+            try {
+                Thread.sleep(300);
+            }catch(InterruptedException e)  {
+                e.printStackTrace();
             }
         }
     }

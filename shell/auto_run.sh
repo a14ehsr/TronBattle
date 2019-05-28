@@ -8,10 +8,5 @@ fi
 command=`cat resource/setting/java/run_command.txt`
 options=`cat resource/setting/java/run_options.txt`
 
-if [ $1 -eq 2 ]; then
-  ${command} ${options} -classpath java/src ac.a14ehsr.platform.GamePlatform -auto true
-fi
+${command} ${options} -classpath java/src ac.a14ehsr.platform.GamePlatform -auto true -nop $1
 
-if [ $1 -eq 3 ]; then
-  ${command} ${options} -classpath java/src ac.a14ehsr.platform.GamePlatform -auto true -nop 3
-fi
