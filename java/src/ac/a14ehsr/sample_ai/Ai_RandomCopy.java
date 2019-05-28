@@ -57,7 +57,9 @@ public class Ai_RandomCopy {
                     int y0 = sc.nextInt();
                     int x1 = sc.nextInt();
                     int y1 = sc.nextInt();
-                    //System.err.println(p + " | " +x0 + " " + y0 + " " + x1 + " " + y1);
+                    if(x0 != -1){
+                        board[y0][x0] = p;
+                    }
                     move(p, x1, y1, board);
                 }
 

@@ -1,114 +1,143 @@
-import java.util.Scanner;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Arrays;
+import java.util.Scanner;
 
 public class P_Sample {
+    private static final int CONTINUE  = 0;
+    private static final int FINISH  = 1;
+
+    private static final int DEATH = 0;
+    private static final int UP = 1;
+    private static final int RIGHT = 2;
+    private static final int DOWN = 3;
+    private static final int LEFT = 4;
+
+    private static final int NOT_ACHIEVED = -1;
+
     private int numberOfPlayers;
     private int numberOfGames;
-    private int numberOfSelectNodes; // 1ゲームで選択するノード
-    private int numberOfNodes;
-    private int numberOfEdges;
-    private int patternSize;
-    private int playerCode; // 0始まりの識別番号
-    private int[][] edges;
-    private int[] weight;
-    private Scanner sc;
-    static final String playerName = "P_SampleJava";
+    private int timelimit;
+    private int width;
+    private int height;
+    private int playerCode; // your player code. 0 <= playerCode < numberOfPlayers
+    static final String playerName = "Java_Sample"; // Do not include spaces in your name.
+    
+    /**
+     * currentPostion[p] = {p.x, p.y}
+     * Payer p's current location is (p.x, p.y).
+     */
+    private int[][] currentPosition;
 
     /**
-     * 書き換え箇所．ノード選択のAI
-     * 
-     * @param record record[i][j]:ゲームiのノードjの獲得プレイヤーID．未獲得は-1
-     * @param game   ゲーム数
-     * @return 選択ノード番号
+     * board[y][x] = status
+     * Status is either NOT_ACHIEVED or player's code.
+     * Be careful position status of location (x,y) saved board[y][x]
+     * Array size is (height+2) * (width+2) bad Board size is height * width.
+     * 1 <= x <= width, 1 <= y <= height.
      */
-    private int select(int[][][][] record, int game, int sequenceNumber, List<Integer> sequence) {
-        while (true) {
-            int selectNode = (int) (Math.random() * numberOfNodes);
-            if (record[game][sequenceNumber][selectNode][0] == -1) {
-                return selectNode;
-            }
-        }
-
-    }
+    private int[][] board;
+    
+    private Scanner sc;
 
     public static void main(String[] args) {
         (new P_Sample()).run();
     }
 
     /**
-     * ゲーム実行メソッド
+     * Game loop.
      */
     public void run() {
         sc = new Scanner(System.in);
         initialize();
 
-        int[][][][] gameRecord = new int[numberOfGames][][][];
-
-        // ゲーム数ループ
         for (int i = 0; i < numberOfGames; i++) {
-            loadGraph();
-            gameRecord[i] = new int[patternSize][numberOfNodes][2];
-            for (int[][] sequenceRecord : gameRecord[i]) {
-                for (int[] nodeInfo : sequenceRecord) {
-                    Arrays.fill(nodeInfo, -1);
-                }
+            boolean continueFlag = true;
+
+            // initialize board and players position
+            currentPosition = new int[numberOfPlayers][2];
+            board = new int[height + 2][width + 2];
+            for(int[] a : board) {
+                Arrays.fill(a, NOT_ACHIEVED);
             }
-            for (int s = 0; s < patternSize; s++) {
 
-                List<Integer> sequence = new LinkedList<Integer>();
-                for (int j = 0; j < numberOfPlayers; j++) {
-                    sequence.add(sc.nextInt());
+            while(continueFlag){
+                // receive all player positions.
+                for (int p = 0; p < numberOfPlayers; p++) {
+                    int x0 = sc.nextInt();
+                    int y0 = sc.nextInt();
+                    int x1 = sc.nextInt();
+                    int y1 = sc.nextInt();
+                    move(p, x1, y1);
                 }
 
-                // 選択ノード数分のループ
-                for (int j = 0; j < numberOfSelectNodes; j++) {
+                // send your strategy.
+                System.out.println(put());
 
-                    for (int p : sequence) {
-                        int selectNode;
-                        if (p == playerCode) {
-                            selectNode = select(gameRecord, i, s, sequence);
-                            System.out.println(selectNode);
-                        } else {
-                            selectNode = sc.nextInt();
-                        }
-                        gameRecord[i][s][selectNode][0] = p;
-                        gameRecord[i][s][selectNode][1] = j;
-                    }
+                // receive continue flag.
+                if(sc.nextInt() == FINISH) {
+                    continueFlag = false;
                 }
             }
         }
     }
 
     /**
-     * 初期化
+     * Your strategy
+     * @return Direction {UP, DOWN, RIGHT, LEFT} or other parameter meaning you are dead.
+     */
+    public int put() {
+        int x = currentPosition[playerCode][0];
+        int y = currentPosition[playerCode][1];
+        if(y < height && board[y+1][x] == NOT_ACHIEVED) {
+            return UP;
+        }else if(x < width && board[y][x+1] == NOT_ACHIEVED) {
+            return RIGHT;
+        }else if(y > 1 && board[y-1][x] == NOT_ACHIEVED) {
+            return DOWN;
+        }else if(x > 1 && board[y][x-1] == NOT_ACHIEVED) {
+            return LEFT;
+        }
+        return DEATH;
+    }
+
+    /**
+     * Move player to point (moveX, moveY)
+     * @param player
+     * @param moveX
+     * @param moveY
+     */
+    public void move(int player, int moveX, int moveY) {
+        if(moveX == -1) {
+            for(int y = 1; y <= height; y++) {
+                for(int x = 1; x <= width; x++) {
+                    if(board[y][x] == player) {
+                        board[y][x] = NOT_ACHIEVED;
+                    }
+                }
+            }
+            currentPosition[player][0] = -1;
+            currentPosition[player][1] = -1;
+            return;
+        }
+
+        board[moveY][moveX] = player;
+        currentPosition[player][0] = moveX;
+        currentPosition[player][1] = moveY;
+    }
+
+
+    /**
+     * input parameters and send your name.
      */
     private void initialize() {
         numberOfPlayers = sc.nextInt();
         numberOfGames = sc.nextInt();
-        numberOfSelectNodes = sc.nextInt();
-        patternSize = sc.nextInt();
+        timelimit = sc.nextInt();
         playerCode = sc.nextInt();
-        System.out.println(playerName);
-    }
 
-    /**
-     * グラフの読み込み ノード数，辺数，辺の情報（ノードA ノードB）の入力
-     */
-    private void loadGraph() {
-        numberOfNodes = sc.nextInt();
-        numberOfEdges = sc.nextInt();
-        weight = new int[numberOfNodes];
-        for (int i = 0; i < numberOfNodes; i++) {
-            weight[i] = sc.nextInt();
-        }
-        edges = new int[numberOfEdges][2];
-        for (int i = 0; i < numberOfEdges; i++) {
-            edges[i][0] = sc.nextInt();
-            edges[i][1] = sc.nextInt();
-        }
+        System.out.println(playerName);
+
+        width = sc.nextInt();
+        height = sc.nextInt();
     }
 
 }

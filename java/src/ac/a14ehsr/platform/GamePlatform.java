@@ -59,7 +59,7 @@ public class GamePlatform {
             try {
                 for (String command : sampleCommandList) {
                     startSubProcess(setting.getNumberOfPlayers(),new String[] { playerCommand, command });
-                    Result result = battle(new TronBattle(setting.getNumberOfPlayers(), setting.getNumberOfGames(), setting.getTimelimit(), setting.isVisible(), players, 10, 10), setting.getOutputLevel(), setting.isVisible(), setting.getTimelimit()+1000);
+                    Result result = battle(new TronBattle(setting.getNumberOfPlayers(), setting.getNumberOfGames(), setting.getTimelimit(), setting.isVisible(), setting.getOutputLevel(), players, 10, 10), setting.getOutputLevel(), setting.isVisible(), setting.getTimelimit()+1000);
                     processDestroy();
                 }
                 pw.println(playerCommand);
@@ -100,7 +100,7 @@ public class GamePlatform {
             }
             try {
                 startSubProcess(numberOfPlayers,commands);
-                Result result = battle(new TronBattle(numberOfPlayers, setting.getNumberOfGames(), setting.getTimelimit(), setting.isVisible(), players, 30, 20), setting.getOutputLevel(), setting.isVisible(), setting.getTimelimit()+1000);
+                Result result = battle(new TronBattle(numberOfPlayers, setting.getNumberOfGames(), setting.getTimelimit(), setting.isVisible(), setting.getOutputLevel(), players, 30, 20), setting.getOutputLevel(), setting.isVisible(), setting.getTimelimit()+1000);
                 String[] resultNames = result.names;
                 for (int i = 0; i < numberOfPlayers; i++) {
                     names[matching[i]] = resultNames[i];
@@ -291,21 +291,16 @@ public class GamePlatform {
     // TODO: 引数にgameを入れる
     public Result battle(Game game, int outputLevel, boolean isVisible, long timeout) throws IOException {
         game.sendGameInfo();
-        if (outputLevel > 0) {
-            game.showPlayers();
-        }
         
-        if(isVisible) {
-            game.setVisualizerName();
-        }
+        game.showPlayers();
+        
+        game.setVisualizerName();
 
         for(int g = 0; g < game.getNumberOfGames(); g++) {
             game.initialize();
             aGame(game);
 
-            if(outputLevel > 1) {
-                game.showGameResult();
-            }
+            game.showGameResult();
 
             for(Player player : players) {
                 player.pointAddition();

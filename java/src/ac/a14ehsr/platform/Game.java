@@ -13,23 +13,27 @@ public abstract class Game {
     protected long timelimit;
     protected Player[] players;
     protected boolean isVisible;
+    protected int outputLevel;
     protected Visualizer visualizer;
 
     private static final int CONTINUE  = 0;
     private static final int FINISH  = 1;
 
 
-    public Game(int numberOfPlayers, int numberOfGames, long timelimit, boolean isVisible, Player[] players){
+    public Game(int numberOfPlayers, int numberOfGames, long timelimit, boolean isVisible, int outputLevel, Player[] players){
         this.numberOfGames = numberOfGames;
         this.numberOfPlayers = numberOfPlayers;
         this.timelimit = timelimit;
         this.players = players;
         this.isVisible = isVisible;
+        this.outputLevel = outputLevel;
         visualizer = null;
     }
 
     public void setVisualizerName() {
-        visualizer.setName(Arrays.stream(players).map(Player::getName).toArray(String[]::new));
+        if(visualizer != null) {
+            visualizer.setName(Arrays.stream(players).map(Player::getName).toArray(String[]::new));
+        }
     }
 
     /**
@@ -105,7 +109,11 @@ public abstract class Game {
      * Resultオブジェクトを返す
      */
     Result result() {
-        return new Result(players);
+        Result result = new Result(players);
+        if(outputLevel > 0) {
+            result.show();
+        }
+        return result;
     }
 
     void sendGameInfo() throws IOException {
@@ -123,7 +131,9 @@ public abstract class Game {
     }
 
     void showPlayers() {
-        System.out.println("players  : " + String.join(" vs ",Arrays.stream(players).map(Player::getName).toArray(String[]::new)));
+        if (outputLevel > 0) {
+            System.out.println("players  : " + String.join(" vs ",Arrays.stream(players).map(Player::getName).toArray(String[]::new)));
+        }
     }
 
     /**

@@ -16,7 +16,6 @@ class ErrorReader extends Thread {
      * @param playerName the playerName to set
      */
     public void setPlayerName(String playerName) {
-        System.err.println("SEDFASFGESJPFAJF" + playerName);
         this.playerName = playerName;
     }
 

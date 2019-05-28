@@ -209,7 +209,7 @@ import java.io.IOException;
 
                 case "-olevel":
                     int tmp = Integer.parseInt(options[i + 1]);
-                    if (tmp > 3 || tmp < 1) {
+                    if (tmp > 4 || tmp < 1) {
                         System.out.println("出力モードは1,2,3のいずれかです．その他の値が入力されています．");
                         System.out.println("既定値で実行します．");
                     } else {

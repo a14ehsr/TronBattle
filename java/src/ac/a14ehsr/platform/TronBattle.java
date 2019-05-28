@@ -10,7 +10,6 @@ import ac.a14ehsr.player.Player;
 public class TronBattle extends Game {
     public static final int DEATH = 0;
     public static final int ALIVE = 1;
-    //public static final int WIN = 2;
 
     public static final int UP = 1;
     public static final int RIGHT = 2;
@@ -29,8 +28,8 @@ public class TronBattle extends Game {
     private int[][] initialPosition; // position of players. nowPosition[player] = {x,y}
     private int aliveCount;
 
-    public TronBattle(int numberOfPlayers, int numberOfGames, long timelimit, boolean isVisible, Player[] players, int width, int height) {
-        super(numberOfPlayers, numberOfGames, timelimit, isVisible, players);
+    public TronBattle(int numberOfPlayers, int numberOfGames, long timelimit, boolean isVisible, int outputLevel, Player[] players, int width, int height) {
+        super(numberOfPlayers, numberOfGames, timelimit, isVisible, outputLevel, players);
         board = makeBoard();
         this.width = width;
         this.height = height;
@@ -109,10 +108,16 @@ public class TronBattle extends Game {
         }
     }
 
+    String positionToString(Player player) {
+        int[] position = nowPosition[player.getCode()];
+        return String.format("%10s:(%2d %2d)", player.getName(), position[0], position[1]);
+    }
+
     @Override
     void play() {
         for(int p = 0; p < numberOfPlayers; p++) {
             Player player = players[p];
+
             for(int k = 0; k < numberOfPlayers; k++) {
                 try{
                     player.sendNumArray(getPlayerSendNumPair(players[k]));
@@ -122,13 +127,22 @@ public class TronBattle extends Game {
                     kill(players[k]);
                 }
             }
+            if(outputLevel == 3) {
+                for(int k = 0; k < numberOfPlayers; k++) {
+                    System.out.print(positionToString(players[k]) + " ");
+                }
+                System.out.println();
+            }else if(outputLevel == 4) {
+                show();
+            }
+            
 
             int direction = put(player);
             int code = player.getCode();
             if(nowPosition[code][0] != -1 && isVisible) {
                 visualizer.setColor(code, nowPosition[code][0], nowPosition[code][1]);
                 try{
-                    Thread.sleep(50);
+                    Thread.sleep(10);
                 }catch(Exception e) {
                     e.printStackTrace();
                 }
@@ -249,10 +263,17 @@ public class TronBattle extends Game {
 
     @Override
     void showGameResult() {
-        for(Player player : players) {
-            System.out.printf("%2d ",player.getGamePoint());
+        if(outputLevel >= 2) {
+            System.out.print("GAME POINT: ");
+            for(Player player : players) {
+                System.out.printf("%10s ",player.getName());
+            }
+            System.out.print(" | ");
+            for(Player player : players) {
+                System.out.printf("%2d ",player.getGamePoint());
+            }
+            System.out.println();
         }
-        System.out.println();
     }
 
     void sendSize() throws IOException {

@@ -79,4 +79,12 @@ class Result {
             this.num = num;
         }
     }
+
+    void show() {
+        System.out.println("GAME RESULT: ");
+        System.out.printf("%15s POINT RANK\n", "NAME");
+        for(int i = 0; i < names.length; i++) {
+            System.out.printf("%15s   %3d   %2d\n",names[i], playerPoints[i], rank[i]);
+        }
+    }
 }
