@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Ai_Random {
+public class Ai_Clockwise {
     private static final int CONTINUE  = 0;
     private static final int FINISH  = 1;
 
@@ -25,13 +25,13 @@ public class Ai_Random {
     private int height;
     private int playerCode; // 0始まりの識別番号
     private Scanner sc;
-    static final String playerName = "Sample_Random";
+    static final String playerName = "S_Clockwise";
     
     private int[][] nowPosition;
     private int[][] board;
 
     public static void main(String[] args) {
-        (new Ai_Random()).run();
+        (new Ai_Clockwise()).run();
     }
 
         /**
