@@ -52,6 +52,7 @@ public class Options {
         String common = javaRunCommand + " " + javaRunOptions + " -classpath java/src/ ac.a14ehsr.sample_ai.";
         
         sampleCommandList.add(common + "Ai_Clockwise");
+        sampleCommandList.add(common + "Ai_Random");
         /*
         sampleCommandList.add(common + "P_Max");
         sampleCommandList.add(common + "P_4Neighbours");
