@@ -25,7 +25,8 @@ class ErrorReader extends Thread {
             int read;
             while ((read = error.read(ch)) > 0) {
                 String s = new String(ch, 0, read);
-                System.out.print(playerName+"'s error: " + s);
+                //System.out.print(playerName+"'s error: " + s);
+                System.out.print(s);
                 System.out.flush();
             }
         } catch (Exception e) {

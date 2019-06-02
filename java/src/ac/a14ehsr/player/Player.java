@@ -8,7 +8,6 @@ import java.io.OutputStream;
 
 import ac.a14ehsr.exception.TimeoutException;
 import ac.a14ehsr.exception.TimeoverException;
-import ac.a14ehsr.platform.setting.Options;
 
 public class Player {
     private PlayerProcess process;

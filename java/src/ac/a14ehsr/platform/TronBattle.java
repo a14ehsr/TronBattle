@@ -241,7 +241,7 @@ public class TronBattle extends Game {
         nowPosition[player.getCode()] = new int[]{-1,-1};
         if(isVisible) {
             try {
-                Thread.sleep(50);
+                Thread.sleep(300);
             }catch(InterruptedException e) {
                 e.printStackTrace();
             }
