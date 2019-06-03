@@ -41,28 +41,29 @@ void move(int player, int initX, int initY, int moveX, int moveY);
 int main(void)
 {
     initialize();
-    for (int i = 0; i < numberOfGames; i++) {
+    int i,p,j,x,y;
+    for (i = 0; i < numberOfGames; i++) {
         int continueFlag = CONTINUE;
 
         // initialize board and players position
         currentPosition = malloc(sizeof(int *) * numberOfPlayers);
-		for(int p = 0; p < numberOfPlayers; p++) {
+		for(p = 0; p < numberOfPlayers; p++) {
             currentPosition[p] = malloc(sizeof(int ) * 2);
         }
 
         board = malloc(sizeof(int *) * (height + 2));
-        for(int j = 0; j <= height+1; j++) {
+        for(j = 0; j <= height+1; j++) {
             board[j] = malloc(sizeof(int *) * (width + 2));
         }
-        for(int y = 1; y <= height; y++) {
-            for(int x = 1; x <= width; x++) {
+        for(y = 1; y <= height; y++) {
+            for(x = 1; x <= width; x++) {
                 board[y][x] = NOT_ACHIEVED;
             }
         }
 
         while(continueFlag == CONTINUE){
             // receive all player positions.
-            for (int p = 0; p < numberOfPlayers; p++) {
+            for (p = 0; p < numberOfPlayers; p++) {
                 int x0,y0,x1,y1;
                 scanf("%d",&x0);
                 scanf("%d",&y0);
@@ -131,9 +132,10 @@ int put() {
  * @param moveY
  */
 void move(int player, int initX, int initY, int moveX, int moveY) {
+    int x,y;
     if(moveX == -1) {
-        for(int y = 1; y <= height; y++) {
-            for(int x = 1; x <= width; x++) {
+        for(y = 1; y <= height; y++) {
+            for(x = 1; x <= width; x++) {
                 if(board[y][x] == player) {
                     board[y][x] = NOT_ACHIEVED;
                 }

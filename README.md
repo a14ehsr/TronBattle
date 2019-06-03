@@ -40,26 +40,65 @@ windows環境においてのみ必要としている操作は，Linuxライク�
 
 https://qiita.com/tetsuy/items/22cba0bc2048967b270a
 
+### Dockerのインストール
 
+Docker for Windows をインストールします．（Windows 10 PROのみ可）
 
-### Dockerの準備
+#### 手順
 
-参考
+1. Docker Hubに登録
+2. Docker for Windowsのインストーラをダウンロード
+3. Hyper-Vを有効化（黒塗りチェックで問題なし）
+4. PC再起動
+5. Docker for Windowsのインストール
 
-https://qiita.com/anikundesu/items/7ecf20b7e8a60f8439a8
+参考: https://qiita.com/anikundesu/items/7ecf20b7e8a60f8439a8
 
-以下を実行
+### Dockerの起動と準備
 
-Users/{ユーザ名}/にtron_workなどの適当な作業ディレクトリを作成．
+1. Docker for Windowsを起動
+2. settingsのShared DrivesからCドライブにチェックを入れapply
+3. 作業ディレクトリ`tron_work`の作成: /c/Users/{ユーザ名}/tron_work
+4. コマンドプロンプトで右を実行: docker pull keikey9612/work-space
+5. コマンドプロンプトで右を実行: docker run -v /c/Users/{ユーザ名}/{マウントしたいディレクトリ}:/root/tron_work -it keikey9612/work-space /bin/bash
+6. コマンドプロンプトの左端の表示がroot@ほにゃららになっていることを確認
+7. `cd tron_work`でディレクトリを移動する．
+8. 以降は1.2に進む
+
+参考: https://qiita.com/anikundesu/items/3ed1e2db1667c7c9efdf#2-docker-for-windowsの基本的な設定方法
+
+#### 発生しうる問題点
+
+- Shared Drivesの変更時にFirewall Detectedが表示される
+  - Windows FirewallのHyper-V関連を許可する
+  - セキュリティソフトのFirewallを許可する (調べれば出てくる) 
+
+### Dockerの終了と再開
+
+#### 終了
+
+exitで終了します．終了するとコマンドプロンプトに戻ります．
+
+#### 再開
+
+コマンドプロンプトで`docker ps -a`とすると，コンテナの一覧が表示されます．
 
 ```
-docker pull keikey9612/work-space
-
-docker run -v /c/Users/{ユーザ名}/{マウントしたいディレクトリ}:/root/tron_work \
--it keikey9612/tron-battle /bin/bash
-
-cd tron_work
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                     PORTS               NAMES
+9f30dba85548        tron-battle         "/bin/bash"               minutes ago       Exited (0) 4 seconds ago                       frosty_allen
 ```
+
+
+
+ここで，`docker start コンテナID`とするとSTATUSがExitedからUpほにゃららと変わります．コンテナIDは重複がなければ最初の数文字で大丈夫です．
+
+次に`docker attach コンテナID`とするとコマンドプロンプトの左端がroot@ほにゃららとなり再開できます．
+
+### Dockerを使う場合の運用
+
+プログラムを書くときにはwindowsでtron_work以下のファイルを編集し，
+
+試すときにはdockerを起動（再開）してコンパイル，実行してください．
 
 ### 1.2 clone
 
@@ -67,7 +106,9 @@ cd tron_work
 
 `git clone https://github.com/a14ehsr/TronBattle.git`
 
-もしくはdownload zipからダウンロードして適当なディレクトリに解凍してください．  
+もしくはdownload zipからダウンロードして適当なディレクトリに解凍してください．
+
+Dockerを使用している場合には `/c/Users/{ユーザ名}/tron_work`にTronBattleが作成されていることを確認する．
 
 ### 1.3 カレントディレクトリを移動
 
@@ -91,7 +132,7 @@ TronBattleのディレクトリまで移動してください．
 
 プログラムをプールするディレクトリの`ai_programs` にコピーします．
 
-以下を実行すれば良いです．
+以下を実行すれば良いです．Dockerを使っている場合にはGUI上でコピーしても大丈夫です．
 
 ```
 cp sample_programs/c/P_SampleC.c ai_programs/
