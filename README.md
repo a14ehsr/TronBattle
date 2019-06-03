@@ -44,7 +44,9 @@ https://qiita.com/tetsuy/items/22cba0bc2048967b270a
 
 ### Dockerの準備
 
-[インストールの参考]: https://qiita.com/anikundesu/items/7ecf20b7e8a60f8439a8
+参考
+
+https://qiita.com/anikundesu/items/7ecf20b7e8a60f8439a8
 
 以下を実行
 
