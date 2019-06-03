@@ -50,13 +50,16 @@ https://qiita.com/anikundesu/items/7ecf20b7e8a60f8439a8
 
 以下を実行
 
+Users/{ユーザ名}/にtron_workなどの適当な作業ディレクトリを作成．
+
 ```
 docker pull keikey9612/work-space
-docker run -v /Users/{ユーザ名}/{マウントしたいディレクトリ}:/root/tmp -it keikey9612/tron-battle /bin/bash
-cd tmp
-```
 
-ただし，Docker toolbox on windows上ではマウントがうまくいかなかったことと，Docker for Windowsは試していないことをここに記しておきます．
+docker run -v /c/Users/{ユーザ名}/{マウントしたいディレクトリ}:/root/tron_work \
+-it keikey9612/tron-battle /bin/bash
+
+cd tron_work
+```
 
 ### 1.2 clone
 
