@@ -100,6 +100,18 @@ CONTAINER ID        IMAGE               COMMAND                  CREATED        
 
 試すときにはdockerを起動（再開）してコンパイル，実行してください．
 
+### Dockerを使う場合にビジュアライザを起動する方法
+
+参考: https://ur.edu-connect.net/archives/29100
+
+以下は一部上のページから部分的に引用しています．詳細は上のページを確認してください．
+
+1. mobaXtermをインストールする
+2. mobaXtermを起動し、Settings（Xの形をしたアイコン）を開き、X11 remote accessを full にしておきます
+3. 右のコマンドでdockerを起動: `docker run -e DISPLAY={ホストのIPアドレス(ipconfigなどで調べる)}:0 -e USER=root -v /tmp/.X11-unix:/tmp/.X11-unix -v /c/Users/{ユーザ名}/{マウントしたいディレクトリ}:/root/tron_work -it keikey9612/work-space /bin/bash`
+
+実際に対戦時にビジュアライザを起動する方法に関しては3.2などを参照してください．
+
 ### 1.2 clone
 
 ターミナルで以下を実行
