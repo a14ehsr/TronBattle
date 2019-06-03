@@ -24,13 +24,13 @@ https://www.codingame.com/multiplayer/bot-programming/tron-battle
 
 - Java1.8以降のインストール
 - Python3系のインストール（Anacondaを推奨）
-- Docker または，busyboxのダウンロード（Windowsの場合）
+- Docker または，busyboxのダウンロード，あるいはWSLの導入（Windowsの場合）
 
 #### 補足
 
 windows環境においてのみ必要としている操作は，Linuxライクに使えるターミナルを利用したいからです．
 
-そのためMac, Linuxで実行する場合には不要です．
+そのためMac, Linuxで実行する場合には不要です（ただし，Dockerを導入するメリットは全員が同一の環境を使える点なのでWindows以外のユーザも同様にDockerを使用する方が好ましいです．）．
 
 他にCygwinや統合ターミナルを持つVSCodeなどもありますが，Docker, busyboxの順に推奨します．
 
@@ -42,11 +42,19 @@ https://qiita.com/tetsuy/items/22cba0bc2048967b270a
 
 
 
-### Dockerのダウンロード
+### Dockerの準備
 
-略
+[インストールの参考]: https://qiita.com/anikundesu/items/7ecf20b7e8a60f8439a8
 
+以下を実行
 
+```
+docker pull keikey9612/work-space
+docker run -v /Users/{ユーザ名}/{マウントしたいディレクトリ}:/root/tmp -it keikey9612/tron-battle /bin/bash
+cd tmp
+```
+
+ただし，Docker toolbox on windows上ではマウントがうまくいかなかったことと，Docker for Windowsは試していないことをここに記しておきます．
 
 ### 1.2 clone
 
