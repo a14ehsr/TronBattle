@@ -62,7 +62,7 @@ cd tmp
 
 ターミナルで以下を実行
 
-`git clone https://github.com/a14ehsr/VoronoiGame.git`
+`git clone https://github.com/a14ehsr/TronBattle.git`
 
 もしくはdownload zipからダウンロードして適当なディレクトリに解凍してください．  
 
@@ -72,11 +72,11 @@ busyboxの場合，コマンドプロンプトを起動し，busybox.exeを以�
 
 `busybox64.exe sh -l`
 
-VoronoiGameのディレクトリまで移動してください．
+TronBattleのディレクトリまで移動してください．
 
 ホームディレクトリ直下に配置した場合にはターミナルで以下を実行すれば良いです．
 
-`cd VoronoiGame`
+`cd TronBattle`
 
 
 
