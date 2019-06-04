@@ -59,8 +59,8 @@ Docker for Windows をインストールします．（Windows 10 PROのみ可�
 1. Docker for Windowsを起動
 2. settingsのShared DrivesからCドライブにチェックを入れapply
 3. 作業ディレクトリ`tron_work`の作成: /c/Users/{ユーザ名}/tron_work
-4. コマンドプロンプトで右を実行: docker pull keikey9612/work-space
-5. コマンドプロンプトで右を実行: docker run -v /c/Users/{ユーザ名}/{マウントしたいディレクトリ}:/root/tron_work -it keikey9612/work-space /bin/bash
+4. コマンドプロンプトで `docker pull keikey9612/work-space`を実行
+5. コマンドプロンプトで `docker run -v /c/Users/{ユーザ名}/tron_work:/root/tron_work -it keikey9612/work-space /bin/bash`を実行
 6. コマンドプロンプトの左端の表示がroot@ほにゃららになっていることを確認
 7. `cd tron_work`でディレクトリを移動する．
 8. 以降は1.2に進む
@@ -77,7 +77,7 @@ Docker for Windows をインストールします．（Windows 10 PROのみ可�
 
 #### 終了
 
-exitで終了します．終了するとコマンドプロンプトに戻ります．
+`exit`で終了します．終了するとコマンドプロンプトに戻ります．
 
 #### 再開
 
@@ -124,17 +124,9 @@ Dockerを使用している場合には `/c/Users/{ユーザ名}/tron_work`にTr
 
 ### 1.3 カレントディレクトリを移動
 
-busyboxの場合，コマンドプロンプトを起動し，busybox.exeを以下のようにして起動してください．
+- busyboxの場合: コマンドプロンプトを起動し，busybox.exeを`busybox64.exe sh -l`と起動してください．
 
-`busybox64.exe sh -l`
-
-TronBattleのディレクトリまで移動してください．
-
-ホームディレクトリ直下に配置した場合にはターミナルで以下を実行すれば良いです．
-
-`cd TronBattle`
-
-
+- 共通: `cd TronBattle`を実行
 
 ### 1.4 サンプルを動かしてみる
 
