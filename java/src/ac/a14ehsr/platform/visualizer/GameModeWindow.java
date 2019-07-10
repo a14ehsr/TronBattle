@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -13,15 +14,28 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.border.LineBorder;
 
-public class GameModeWindow {
+import ac.a14ehsr.platform.GamePlatform;
+import ac.a14ehsr.platform.TronBattle;
+
+import java.awt.event.KeyListener;
+import java.awt.event.KeyEvent;
+
+public class GameModeWindow implements KeyListener{
     private JFrame frame;
     private JPanel mainMenuPanel;
-    private JPanel gamePanel;
-    private static final Color[] playerColor = {Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW, Color.PINK, Color.ORANGE};
-    private static final Color notAchieve = Color.LIGHT_GRAY;
-
+    private Visualizer gamePanel;
 
     public GameModeWindow() {
+        //VisualizerPanel visualizer = new VisualizerPanel(30, 20);
+        // 入力を待ってからスタート
+        /*
+        try {
+            battle(new TronBattle(numberOfPlayers, players, visualizer), 1, true, 3000);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        */
+
         frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setName("Tron Battle");
@@ -33,43 +47,8 @@ public class GameModeWindow {
         frame.getContentPane().add(mainMenuPanel);
 
         frame.validate();
-    }
 
-    class GamePanel extends JPanel {
-        private JPanel[][] panels;
-
-        private int height;
-        private int width;
-    
-
-        GamePanel(int width, int height) {
-            this.width = width;
-            this.height = height;    
-            setLayout(new GridLayout(height + 2,width + 2));
-            panels = new JPanel[height + 2][width + 2];
-            LineBorder border = new LineBorder(Color.BLACK);
-    
-            for(int y = 0; y < panels.length; y++) {
-                for(int x = 0; x < panels[y].length; x++) {
-                    panels[y][x] = new JPanel();
-                    panels[y][x].setBackground(notAchieve);
-                    panels[y][x].setBorder(border);
-                    add(panels[y][x]);
-                }
-            }
-            for(int x = 0; x < panels[0].length; x++) {
-                panels[0][x].setBackground(Color.GRAY);
-                panels[height+1][x].setBackground(Color.GRAY);
-            }
-    
-            for(int y = 0; y < panels.length; y++) {
-                panels[y][0].setBackground(Color.GRAY);
-                panels[y][width + 1].setBackground(Color.GRAY);
-            }
-    
-    
-        }
-        
+        //frame.addKeyListener(this);
     }
 
     class MainMenuPanel extends JPanel {
@@ -121,15 +100,41 @@ public class GameModeWindow {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     setVisible(false);
-                    gamePanel = new GamePanel(30,20);
+                    gamePanel = new Visualizer(30,20, frame);
                     frame.getContentPane().add(gamePanel);
                     gamePanel.setVisible(true);
+
+                    String[] commands = new String[3];
+                    commands[1] = "./ai_programs/TronBattle対戦用プログラム/P_masayo16";
+                    commands[2] = "./ai_programs/TronBattle対戦用プログラム/P_mucchin";
+                    commands[1] = "-human";
+                    commands[0] = "-human";
+                    Thread th = new Thread(new GamePlatform(3, commands, gamePanel, frame));
+                    th.start();
+                    frame.validate();
+                    gamePanel.validate();
+                    frame.requestFocus();
                 }
             });
         }
+
     }
 
     public static void main(String[] args) {
         new GameModeWindow();
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        System.err.println(e.getKeyChar());
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+        System.err.println(e.getKeyChar());   
+    }
+    @Override
+    public void keyPressed(KeyEvent e) {
+        System.err.println("T:"+e.getKeyCode());
     }
 }

@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import ac.a14ehsr.exception.TimeoutException;
 import ac.a14ehsr.platform.visualizer.Visualizer;
+import ac.a14ehsr.player.HumanPlayer;
 import ac.a14ehsr.player.Player;
 
 public class TronBattle extends Game {
@@ -31,12 +32,22 @@ public class TronBattle extends Game {
 
     public TronBattle(int numberOfPlayers, int numberOfGames, long timelimit, boolean isVisible, int outputLevel, Player[] players, int width, int height) {
         super(numberOfPlayers, numberOfGames, timelimit, isVisible, outputLevel, players);
-        board = makeBoard();
         this.width = width;
         this.height = height;
+        board = makeBoard();
+        /*
         if(isVisible) {
             setVisualizer(new Visualizer(width, height));
         }
+        */
+    }
+
+    public TronBattle(int numberOfPlayers, Player[] players, Visualizer visualizer) {
+        super(numberOfPlayers, 1, 3000, true, 3, players);
+        this.width = 30;
+        this.height = 20;
+        board = makeBoard();
+        setVisualizer(visualizer);
     }
 
     /**
@@ -84,10 +95,16 @@ public class TronBattle extends Game {
                 visualizer.setColor(code, nowPosition[code][0], nowPosition[code][1]);
             }
             board[tmp[1]][tmp[0]] = players[p].getCode();
+
         }
         for(Player player : players) {
             player.setStatus(ALIVE);
             player.setGamePoint(numberOfPlayers);
+            //*
+            if(player.isHuman()) {
+                ((HumanPlayer)player).setBoard(board, nowPosition);
+            }
+            //*/
         }
         aliveCount = numberOfPlayers;
         deathCount = 0;
@@ -138,7 +155,6 @@ public class TronBattle extends Game {
                 show();
             }
             
-
             int direction = put(player);
             int code = player.getCode();
             if(nowPosition[code][0] != -1 && isVisible) {

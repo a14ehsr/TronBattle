@@ -233,6 +233,11 @@ public class Options {
                     i += 1;
                     break;
                 */
+                case "-human":
+                // TODO: リストベタ打ち
+                    readCommandList(commandList, "resource/command_list/command_list.txt");
+                    i++;
+                    break;
 
                 default:
                     throw new OptionsException("存在しないオプション:"+options[i]);
@@ -251,6 +256,7 @@ public class Options {
         while (sc.hasNext()) {
             commandList.add(sc.nextLine());
         }
+        commandList.forEach(System.out::println);
     }
 
     class OptionsException extends Exception {
