@@ -8,6 +8,9 @@ import ac.a14ehsr.platform.visualizer.Visualizer;
 import ac.a14ehsr.player.HumanPlayer;
 import ac.a14ehsr.player.Player;
 
+import java.awt.Color;
+
+
 public class TronBattle extends Game {
     public static final int DEATH = 0;
     public static final int ALIVE = 1;
@@ -35,11 +38,11 @@ public class TronBattle extends Game {
         this.width = width;
         this.height = height;
         board = makeBoard();
-        /*
+        //*
         if(isVisible) {
             setVisualizer(new Visualizer(width, height));
         }
-        */
+        //*/
     }
 
     public TronBattle(int numberOfPlayers, Player[] players, Visualizer visualizer) {
@@ -93,6 +96,7 @@ public class TronBattle extends Game {
             if(isVisible) {
                 int code = players[p].getCode();
                 visualizer.setColor(code, nowPosition[code][0], nowPosition[code][1]);
+                visualizer.resetNameColor();
             }
             board[tmp[1]][tmp[0]] = players[p].getCode();
 
@@ -154,7 +158,11 @@ public class TronBattle extends Game {
             }else if(outputLevel == 4) {
                 show();
             }
-            
+
+            if(isVisible) {
+                visualizer.setNameBorder(p, Color.WHITE);
+            }
+
             int direction = put(player);
             int code = player.getCode();
             if(nowPosition[code][0] != -1 && isVisible) {
@@ -164,6 +172,9 @@ public class TronBattle extends Game {
                 }catch(Exception e) {
                     e.printStackTrace();
                 }
+            }
+            if(isVisible) {
+                visualizer.setNameBorder(p, Color.BLACK);
             }
         }
         //Arrays.stream(players).forEach(p -> System.err.print(p.getGamePoint() + " "));
@@ -329,6 +340,7 @@ public class TronBattle extends Game {
                     board[y][x] = -1;
                     if(isVisible) {
                         visualizer.relese(player.getCode(), x, y);
+                        visualizer.setNameColor(player.getCode(), Color.BLACK);
                     }
                 }
             }

@@ -250,6 +250,25 @@ public class HumanPlayer extends Player implements KeyListener {
                     direction = LEFT;
                     break;
             }
+        } else if(code == 2) {
+            switch(e.getKeyCode()) {
+                case KeyEvent.VK_U:
+                    if(y-1 == 0 || board[y-1][x] != NOT_ACHIEVED) return;
+                    direction =  DOWN;
+                    break;
+                case KeyEvent.VK_K:
+                    if(x+1 == width+1 || board[y][x+1] != NOT_ACHIEVED) return;
+                    direction = RIGHT;
+                    break;
+                case KeyEvent.VK_J:
+                    if(y+1 == height+1 || board[y+1][x] != NOT_ACHIEVED) return;
+                    direction = UP;
+                    break;
+                case KeyEvent.VK_H:
+                    if(x-1 == 0 || board[y][x-1] != NOT_ACHIEVED) return;
+                    direction = LEFT;
+                    break;
+            }
         }
 
         //System.err.println("dir-"+ direction);

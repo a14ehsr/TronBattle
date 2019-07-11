@@ -63,7 +63,12 @@ public class GamePlatform implements Runnable{
                 4000);
         } catch(IOException e) {
             e.printStackTrace();   
+        } finally {
+            for(Player player : players) {
+                player.destroy();
+            }
         }
+
     }
 
     /**

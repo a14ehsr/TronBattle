@@ -15,6 +15,10 @@ public class Visualizer extends JPanel {
     private JPanel namePanel;
     private JPanel[][] panels;
 
+    private JLabel[] nameLabels;
+
+    private boolean isGMW;
+
 
     CountDownBarPanel cdp;
     Thread th;
@@ -27,11 +31,24 @@ public class Visualizer extends JPanel {
     private static final Color notAchieve = Color.LIGHT_GRAY;
 
 
-    private void createWindow() {
-        frame = new JFrame();
+    private static JFrame createWindow(int width, int height) {
+        JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
         frame.setSize(width * 40,height * 40);
+        
+        return frame;
+    }
+
+    /**
+     * @param isGMW the isGMW to set
+     */
+    public void setGMW(boolean isGMW) {
+        this.isGMW = isGMW;
+    }
+
+    public Visualizer(int width, int height) {
+        this(width, height, createWindow(width, height));
         frame.getContentPane().add(this, BorderLayout.CENTER);
     }
 
@@ -41,6 +58,7 @@ public class Visualizer extends JPanel {
         this.height = height;
 
         this.frame = frame;
+        isGMW = false;
         mainPanel = new JPanel();
         mainPanel.setLayout(new GridLayout(height + 2,width + 2));
         
@@ -76,12 +94,27 @@ public class Visualizer extends JPanel {
     }
 
     public void setName(String[] names) {
+        nameLabels = new JLabel[names.length];
         for(int p = 0; p < names.length; p++) {
-            JLabel label = new JLabel(names[p]);
-            label.setForeground(playerColor[p]);
-            namePanel.add(label);
+            nameLabels[p] = new JLabel(names[p]);
+            nameLabels[p].setForeground(playerColor[p]);
+            namePanel.add(nameLabels[p]);
         }
         frame.validate();
+    }
+
+    public void setNameBorder(int player, Color color) {
+        nameLabels[player].setBorder(new LineBorder(color));
+    }
+
+    public void setNameColor(int player, Color color) {
+        nameLabels[player].setForeground(color);
+    }
+
+    public void resetNameColor() {
+        for(int p = 0; p < nameLabels.length; p++) {
+            nameLabels[p].setForeground(playerColor[p]);
+        }
     }
 
     public void setColor(int player, int x, int y) {
@@ -91,17 +124,18 @@ public class Visualizer extends JPanel {
         }
         panels[y][x].setBackground(playerColor[player]);
         panels[y][x].repaint();
-        
-        cdp = new CountDownBarPanel(300,200);
-        this.add(cdp, BorderLayout.SOUTH);
+        if(isGMW) {
 
-        (th = new Thread(cdp)).start();
+            cdp = new CountDownBarPanel(300,200);
+            this.add(cdp, BorderLayout.SOUTH);   
+            (th = new Thread(cdp)).start();
+            cdp.validate();
+            cdp.repaint();    
+        }
 
-        mainPanel.validate();
-        this.validate();
-        cdp.validate();
-        cdp.repaint();
-        this.repaint();
+        //mainPanel.validate();
+        //this.validate();
+        //this.repaint();
         frame.validate();
     }
 
@@ -113,6 +147,7 @@ public class Visualizer extends JPanel {
 
     public void dispose() {
         if(frame == null) return;
+        if(isGMW) return;
         frame.dispose();
     }
 
