@@ -96,6 +96,7 @@ public class TronBattle extends Game {
             if(isVisible) {
                 int code = players[p].getCode();
                 visualizer.setColor(code, nowPosition[code][0], nowPosition[code][1]);
+                visualizer.setBorder(nowPosition[code][0], nowPosition[code][1], Color.WHITE, 3);
                 visualizer.resetNameColor();
             }
             board[tmp[1]][tmp[0]] = players[p].getCode();
@@ -159,14 +160,17 @@ public class TronBattle extends Game {
                 show();
             }
 
+            int code = player.getCode();
+
             if(isVisible) {
                 visualizer.setNameBorder(p, Color.WHITE);
             }
+            visualizer.setBorder(nowPosition[code][0], nowPosition[code][1], Color.WHITE, 6);
 
             int direction = put(player);
-            int code = player.getCode();
             if(nowPosition[code][0] != -1 && isVisible) {
                 visualizer.setColor(code, nowPosition[code][0], nowPosition[code][1]);
+                visualizer.setBorder(nowPosition[code][0], nowPosition[code][1], Color.WHITE, 3);
                 try{
                     Thread.sleep(10);
                 }catch(Exception e) {
@@ -248,7 +252,9 @@ public class TronBattle extends Game {
             kill(player);
             return DEATH;
         }
-        board[y][x] = player.getCode();
+        int code = player.getCode();
+        board[y][x] = code;
+        visualizer.setBorder(nowPosition[code][0], nowPosition[code][1], Color.BLACK, 1);
         nowPosition[player.getCode()] = new int[]{x,y};
         return direction;   
     }
@@ -265,6 +271,9 @@ public class TronBattle extends Game {
         player.setStatus(DEATH);
         player.setGamePoint(points[deathCount++]);
         aliveCount--;
+        if(isVisible) {
+            visualizer.setBorder(nowPosition[player.getCode()][0], nowPosition[player.getCode()][1], Color.BLACK, 1);
+        }
         nowPosition[player.getCode()] = new int[]{-1,-1};
         if(isVisible) {
             try {

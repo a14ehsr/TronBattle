@@ -117,12 +117,19 @@ public class Visualizer extends JPanel {
         }
     }
 
+    public void setBorder(int x, int y, Color color, int size) {
+        System.err.println(x+"," + y + "の色を"+color+"に変更しました");
+        if(x==-1) return;
+        panels[y][x].setBorder(new LineBorder(color, size));
+    }
+
     public void setColor(int player, int x, int y) {
         if(cdp != null) {
             cdp.stop();
             this.remove(cdp);
         }
         panels[y][x].setBackground(playerColor[player]);
+        //panels[y][x].setBorder(new LineBorder(Color.WHITE, 3));
         panels[y][x].repaint();
         if(isGMW) {
 
@@ -130,7 +137,7 @@ public class Visualizer extends JPanel {
             this.add(cdp, BorderLayout.SOUTH);   
             (th = new Thread(cdp)).start();
             cdp.validate();
-            cdp.repaint();    
+            cdp.repaint();
         }
 
         //mainPanel.validate();
@@ -141,6 +148,7 @@ public class Visualizer extends JPanel {
 
     public void relese(int player, int x, int y) {
         panels[y][x].setBackground(notAchieve);
+        //setBorder(x, y, Color.BLACK, 1);
         panels[y][x].repaint();
         mainPanel.validate();
     }
@@ -155,6 +163,7 @@ public class Visualizer extends JPanel {
         for(int y = 1; y <= height; y++) {
             for(int x = 1; x <= width; x++) {
                 panels[y][x].setBackground(notAchieve);
+                setBorder(x, y, Color.BLACK, 1);
             }
         }       
     }
