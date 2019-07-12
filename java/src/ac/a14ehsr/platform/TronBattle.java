@@ -5,7 +5,11 @@ import java.util.Arrays;
 
 import ac.a14ehsr.exception.TimeoutException;
 import ac.a14ehsr.platform.visualizer.Visualizer;
+import ac.a14ehsr.player.HumanPlayer;
 import ac.a14ehsr.player.Player;
+
+import java.awt.Color;
+
 
 public class TronBattle extends Game {
     public static final int DEATH = 0;
@@ -31,12 +35,22 @@ public class TronBattle extends Game {
 
     public TronBattle(int numberOfPlayers, int numberOfGames, long timelimit, boolean isVisible, int outputLevel, Player[] players, int width, int height) {
         super(numberOfPlayers, numberOfGames, timelimit, isVisible, outputLevel, players);
-        board = makeBoard();
         this.width = width;
         this.height = height;
+        board = makeBoard();
+        //*
         if(isVisible) {
             setVisualizer(new Visualizer(width, height));
         }
+        //*/
+    }
+
+    public TronBattle(int numberOfPlayers, Player[] players, Visualizer visualizer) {
+        super(numberOfPlayers, 1, 3000, true, 3, players);
+        this.width = 30;
+        this.height = 20;
+        board = makeBoard();
+        setVisualizer(visualizer);
     }
 
     /**
@@ -82,12 +96,20 @@ public class TronBattle extends Game {
             if(isVisible) {
                 int code = players[p].getCode();
                 visualizer.setColor(code, nowPosition[code][0], nowPosition[code][1]);
+                visualizer.setBorder(nowPosition[code][0], nowPosition[code][1], Color.WHITE, 3);
+                visualizer.resetNameColor();
             }
             board[tmp[1]][tmp[0]] = players[p].getCode();
+
         }
         for(Player player : players) {
             player.setStatus(ALIVE);
             player.setGamePoint(numberOfPlayers);
+            //*
+            if(player.isHuman()) {
+                ((HumanPlayer)player).setBoard(board, nowPosition);
+            }
+            //*/
         }
         aliveCount = numberOfPlayers;
         deathCount = 0;
@@ -137,17 +159,26 @@ public class TronBattle extends Game {
             }else if(outputLevel == 4) {
                 show();
             }
-            
+
+            int code = player.getCode();
+
+            if(isVisible) {
+                visualizer.setNameBorder(p, Color.WHITE);
+            }
+            visualizer.setBorder(nowPosition[code][0], nowPosition[code][1], Color.WHITE, 6);
 
             int direction = put(player);
-            int code = player.getCode();
             if(nowPosition[code][0] != -1 && isVisible) {
                 visualizer.setColor(code, nowPosition[code][0], nowPosition[code][1]);
+                visualizer.setBorder(nowPosition[code][0], nowPosition[code][1], Color.WHITE, 3);
                 try{
                     Thread.sleep(10);
                 }catch(Exception e) {
                     e.printStackTrace();
                 }
+            }
+            if(isVisible) {
+                visualizer.setNameBorder(p, Color.BLACK);
             }
         }
         //Arrays.stream(players).forEach(p -> System.err.print(p.getGamePoint() + " "));
@@ -221,7 +252,9 @@ public class TronBattle extends Game {
             kill(player);
             return DEATH;
         }
-        board[y][x] = player.getCode();
+        int code = player.getCode();
+        board[y][x] = code;
+        visualizer.setBorder(nowPosition[code][0], nowPosition[code][1], Color.BLACK, 1);
         nowPosition[player.getCode()] = new int[]{x,y};
         return direction;   
     }
@@ -238,6 +271,9 @@ public class TronBattle extends Game {
         player.setStatus(DEATH);
         player.setGamePoint(points[deathCount++]);
         aliveCount--;
+        if(isVisible) {
+            visualizer.setBorder(nowPosition[player.getCode()][0], nowPosition[player.getCode()][1], Color.BLACK, 1);
+        }
         nowPosition[player.getCode()] = new int[]{-1,-1};
         if(isVisible) {
             try {
@@ -313,6 +349,7 @@ public class TronBattle extends Game {
                     board[y][x] = -1;
                     if(isVisible) {
                         visualizer.relese(player.getCode(), x, y);
+                        visualizer.setNameColor(player.getCode(), Color.BLACK);
                     }
                 }
             }

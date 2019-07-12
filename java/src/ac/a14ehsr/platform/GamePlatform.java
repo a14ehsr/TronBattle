@@ -10,20 +10,37 @@ import java.util.Collections;
 import java.util.List;
 
 import ac.a14ehsr.platform.config.Options;
+import ac.a14ehsr.platform.visualizer.GameModeWindow;
 import ac.a14ehsr.platform.visualizer.Visualizer;
+import ac.a14ehsr.player.HumanPlayer;
 import ac.a14ehsr.player.Player;
+import javax.swing.JFrame;
 
-public class GamePlatform {
-    Player[] players;
+public class GamePlatform implements Runnable{
+    public Player[] players;
     Options setting;
 
-    public static void main(String[] args) {
-        (new GamePlatform()).run(args);
+    String[] withHumanCommand;
+    Visualizer visualizer;
+    int numberOfPlayers;
 
-        
+    JFrame frame;
+
+    public static void main(String[] args) {
+        (new GamePlatform()).go(args);
     }
 
-    private void run(String[] args) {
+    GamePlatform(){}
+
+    public GamePlatform(int numberOfPlayers, String[] commands, Visualizer visualizer, JFrame frame) {
+        withHumanCommand = commands;
+        this.visualizer = visualizer;
+        this.numberOfPlayers = numberOfPlayers;
+        this.frame = frame;
+
+    }
+    
+    private void go(String[] args) {
         setting = new Options();
         setting.start(args);
         if(setting.isTest()) {
@@ -32,6 +49,24 @@ public class GamePlatform {
         }else{
             System.err.println("not test");
             autoRun();
+        }
+    }
+
+    @Override
+    public void run() {
+        try {
+            startSubProcess(numberOfPlayers,withHumanCommand);
+            battle(
+                new TronBattle(numberOfPlayers, players, visualizer),
+                3,
+                true,
+                4000);
+        } catch(IOException e) {
+            e.printStackTrace();   
+        } finally {
+            for(Player player : players) {
+                player.destroy();
+            }
         }
 
     }
@@ -277,7 +312,13 @@ public class GamePlatform {
         Runtime rt = Runtime.getRuntime();
         players = new Player[numberOfPlayer];
         for(int p = 0; p < numberOfPlayer; p++) {
-            players[p] = new Player(rt,commands[p],p);
+            if("-human".equals(commands[p])) {
+                HumanPlayer hp = new HumanPlayer(p);
+                players[p] = hp;
+                frame.addKeyListener(hp);
+            } else {
+                players[p] = new Player(rt,commands[p],p);
+            }
         }
 
         // サブプロセス起動が長い可能性を考慮しておく

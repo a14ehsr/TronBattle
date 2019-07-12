@@ -9,12 +9,20 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 
-public class Visualizer {
+public class Visualizer extends JPanel {
     private JFrame frame;
     private JPanel mainPanel;
     private JPanel namePanel;
-
     private JPanel[][] panels;
+
+    private JLabel[] nameLabels;
+
+    private boolean isGMW;
+
+
+    CountDownBarPanel cdp;
+    Thread th;
+    JFrame cdf;
 
     private int height;
     private int width;
@@ -22,15 +30,35 @@ public class Visualizer {
     private static final Color[] playerColor = {Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW, Color.PINK, Color.ORANGE};
     private static final Color notAchieve = Color.LIGHT_GRAY;
 
-    public Visualizer(int width, int height) {
-        this.width = width;
-        this.height = height;
-        frame = new JFrame();
-        
+
+    private static JFrame createWindow(int width, int height) {
+        JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
         frame.setSize(width * 40,height * 40);
         
+        return frame;
+    }
+
+    /**
+     * @param isGMW the isGMW to set
+     */
+    public void setGMW(boolean isGMW) {
+        this.isGMW = isGMW;
+    }
+
+    public Visualizer(int width, int height) {
+        this(width, height, createWindow(width, height));
+        frame.getContentPane().add(this, BorderLayout.CENTER);
+    }
+
+    public Visualizer(int width, int height, JFrame frame) {
+        super();
+        this.width = width;
+        this.height = height;
+
+        this.frame = frame;
+        isGMW = false;
         mainPanel = new JPanel();
         mainPanel.setLayout(new GridLayout(height + 2,width + 2));
         
@@ -55,35 +83,79 @@ public class Visualizer {
             panels[y][width + 1].setBackground(Color.GRAY);
         }
 
-        frame.getContentPane().add(mainPanel,BorderLayout.CENTER);
-
+        
         namePanel = new JPanel();
         namePanel.setBackground(Color.BLACK);
-        frame.getContentPane().add(namePanel,BorderLayout.NORTH);
-
+        this.setLayout(new BorderLayout());
+        this.add(mainPanel,BorderLayout.CENTER);
+        this.add(namePanel,BorderLayout.NORTH);
+        this.add(new JPanel(), BorderLayout.SOUTH);
+        frame.validate();
     }
 
     public void setName(String[] names) {
+        nameLabels = new JLabel[names.length];
         for(int p = 0; p < names.length; p++) {
-            JLabel label = new JLabel(names[p]);
-            label.setForeground(playerColor[p]);
-            namePanel.add(label);
+            nameLabels[p] = new JLabel(names[p]);
+            nameLabels[p].setForeground(playerColor[p]);
+            namePanel.add(nameLabels[p]);
+        }
+        frame.validate();
+    }
+
+    public void setNameBorder(int player, Color color) {
+        nameLabels[player].setBorder(new LineBorder(color));
+    }
+
+    public void setNameColor(int player, Color color) {
+        nameLabels[player].setForeground(color);
+    }
+
+    public void resetNameColor() {
+        for(int p = 0; p < nameLabels.length; p++) {
+            nameLabels[p].setForeground(playerColor[p]);
         }
     }
 
+    public void setBorder(int x, int y, Color color, int size) {
+        System.err.println(x+"," + y + "の色を"+color+"に変更しました");
+        if(x==-1) return;
+        panels[y][x].setBorder(new LineBorder(color, size));
+    }
+
     public void setColor(int player, int x, int y) {
+        if(cdp != null) {
+            cdp.stop();
+            this.remove(cdp);
+        }
         panels[y][x].setBackground(playerColor[player]);
+        //panels[y][x].setBorder(new LineBorder(Color.WHITE, 3));
         panels[y][x].repaint();
-        frame. validate();
+        if(isGMW) {
+
+            cdp = new CountDownBarPanel(300,200);
+            this.add(cdp, BorderLayout.SOUTH);   
+            (th = new Thread(cdp)).start();
+            cdp.validate();
+            cdp.repaint();
+        }
+
+        //mainPanel.validate();
+        //this.validate();
+        //this.repaint();
+        frame.validate();
     }
 
     public void relese(int player, int x, int y) {
         panels[y][x].setBackground(notAchieve);
+        //setBorder(x, y, Color.BLACK, 1);
         panels[y][x].repaint();
-        frame. validate();
+        mainPanel.validate();
     }
 
     public void dispose() {
+        if(frame == null) return;
+        if(isGMW) return;
         frame.dispose();
     }
 
@@ -91,6 +163,7 @@ public class Visualizer {
         for(int y = 1; y <= height; y++) {
             for(int x = 1; x <= width; x++) {
                 panels[y][x].setBackground(notAchieve);
+                setBorder(x, y, Color.BLACK, 1);
             }
         }       
     }
@@ -103,6 +176,5 @@ public class Visualizer {
         }
         mainPanel.repaint();
         mainPanel.validate();
-        frame.validate();
     }
 }

@@ -10,13 +10,15 @@ import ac.a14ehsr.exception.TimeoutException;
 import ac.a14ehsr.exception.TimeoverException;
 
 public class Player {
-    private PlayerProcess process;
-    private String name;
-    private int code;
-    private int gamePoint;
-    private int sumPoint;
-    private int status;
-    private int rank;
+    protected PlayerProcess process;
+    protected String name;
+    protected int code;
+    protected int gamePoint;
+    protected int sumPoint;
+    protected int status;
+    protected int rank;
+
+    protected boolean isHuman;
 
     /**
      * 文字列受け取り用の一時変数
@@ -36,6 +38,13 @@ public class Player {
      */
     public int getCode() {
         return code;
+    }
+
+    /**
+     * @return the isHuman
+     */
+    public boolean isHuman() {
+        return isHuman;
     }
 
     /**
@@ -107,9 +116,14 @@ public class Player {
         this.status = status;
     }
 
+    public Player(int code) {
+        this.code = code;
+    }
+
     public Player(Runtime runtime, String runCommand, int code) throws IOException {
         process = new PlayerProcess(runtime, runCommand, code);
         this.code = code;
+        isHuman = false;
     }
 
     public void sendMes(String mes) throws IOException {
