@@ -141,7 +141,9 @@ public class TronBattle extends Game {
     void play() {
         for(int p = 0; p < numberOfPlayers; p++) {
             Player player = players[p];
-
+            if(player.getStatus() == DEATH) {
+                continue;
+            }
             for(int k = 0; k < numberOfPlayers; k++) {
                 try{
                     player.sendNumArray(getPlayerSendNumPair(players[k]));
@@ -202,6 +204,10 @@ public class TronBattle extends Game {
     }
 
     int put(Player player) {
+        if(player.getStatus() == DEATH) {
+            //System.err.println("もともと死んでる");
+            return DEATH;
+        }
         int direction = DEATH;
         try {
             direction = player.receiveNum(timelimit+1000, timelimit);
@@ -210,10 +216,7 @@ public class TronBattle extends Game {
             kill(player);
             return DEATH;
         }
-        if(player.getStatus() == DEATH) {
-            //System.err.println("もともと死んでる");
-            return DEATH;
-        }
+
         int playerCode = player.getCode();
         int x = nowPosition[playerCode][0];
         int y = nowPosition[playerCode][1];

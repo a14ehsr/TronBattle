@@ -144,12 +144,14 @@ public abstract class Game {
 
     void sendGameFinish() throws IOException {
         for(Player player : players) {
+            if(player.getStatus() == 0) continue;
             player.sendNum(FINISH);
         }
     }
 
     void sendGameContinue() throws IOException {
         for(Player player : players) {
+            if(player.getStatus() == 0) continue;
             player.sendNum(CONTINUE);
         }
     }

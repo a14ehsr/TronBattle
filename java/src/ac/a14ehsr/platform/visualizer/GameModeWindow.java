@@ -16,6 +16,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import java.awt.BorderLayout;
+import javax.swing.JComboBox;
+
+import java.util.List;
+import java.util.ArrayList;
 
 import ac.a14ehsr.platform.GamePlatform;
 
@@ -35,7 +39,7 @@ public class GameModeWindow implements KeyListener{
         }
         */
 
-        frame = new JFrame();
+        frame = new JFrame("Tron Battle");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setName("Tron Battle");
         frame.setSize(800, 600);
@@ -56,59 +60,34 @@ public class GameModeWindow implements KeyListener{
         ButtonGroup numOfHumanPlayerButtonGroup;
         JToggleButton[] numOfHumanPlayerButtons;
 
-        JPanel numOfPlayerButtonPanel;
-        JPanel numOfHumanPlayerButtonPanel;
+        JPanel selectPanel;
+        //JPanel numOfHumanPlayerButtonPanel;
 
         JButton startButton;
 
+        JComboBox[] playProgramSelect;
+        
         MainMenuPanel() {
             setBackground(Color.BLUE);
 
-            setLayout(new GridLayout(1,3));
+            setLayout(new GridLayout(2,1));
 
             Font font = new Font("", Font.BOLD, 30);
-
-            numOfPlayerButtonPanel = new JPanel();
-            numOfPlayerButtonPanel.setLayout(new BoxLayout(numOfPlayerButtonPanel, BoxLayout.Y_AXIS));
-            numOfPlayerButtonPanel.setLayout(new GridLayout(5,1));
-
-            numOfHumanPlayerButtonPanel = new JPanel();
-            numOfHumanPlayerButtonPanel.setLayout(new BoxLayout(numOfHumanPlayerButtonPanel, BoxLayout.Y_AXIS));
-            numOfHumanPlayerButtonPanel.setLayout(new GridLayout(5,1));
-
-            add(numOfPlayerButtonPanel);
-            add(numOfHumanPlayerButtonPanel);
-
-            numOfPlayerButtonGroup = new ButtonGroup();
-            numOfPlayerButtons = new JToggleButton[5];
-            JLabel nopLabel = new JLabel("対戦人数");
-            nopLabel.setFont(font);
-            nopLabel.setHorizontalAlignment(JLabel.CENTER);
-            numOfPlayerButtonPanel.add(nopLabel);
-            for(int i = 1; i < numOfPlayerButtons.length; i++) {
-                numOfPlayerButtons[i] = new JToggleButton(Integer.toString(i+1)+"人");
-                numOfPlayerButtonGroup.add(numOfPlayerButtons[i]);
-                numOfPlayerButtonPanel.add(numOfPlayerButtons[i]);
-                numOfPlayerButtons[i].setActionCommand((i+1)+"");
-                numOfPlayerButtons[i].setFont(font);
+            selectPanel = new JPanel();
+            int maxPlayer = 7;
+            selectPanel.setLayout(new GridLayout(1,maxPlayer));
+            playProgramSelect = new JComboBox[maxPlayer];
+            String[] player = {"なし", "人間","legend","mucchin","直進", "時計周り", "ランダム"};
+            for(int i = 0; i < maxPlayer; i++) {
+                playProgramSelect[i] = new JComboBox<String>(player);
+                selectPanel.add(playProgramSelect[i]);
             }
+            playProgramSelect[0].setSelectedIndex(1);
+            playProgramSelect[1].setSelectedIndex(1);
+            playProgramSelect[2].setSelectedIndex(2);
+            playProgramSelect[3].setSelectedIndex(2);
 
-            numOfHumanPlayerButtonGroup = new ButtonGroup();
-            numOfHumanPlayerButtons = new JToggleButton[3];
-            JLabel nohLabel = new JLabel("人間プレイヤー数");
-            nohLabel.setFont(font);
-            nohLabel.setHorizontalAlignment(JLabel.CENTER);
-            numOfHumanPlayerButtonPanel.add(nohLabel);
-            for(int i = 0; i < numOfHumanPlayerButtons.length; i++) {
-                numOfHumanPlayerButtons[i] = new JToggleButton(Integer.toString(i)+"人");
-                numOfHumanPlayerButtonGroup.add(numOfHumanPlayerButtons[i]);
-                numOfHumanPlayerButtonPanel.add(numOfHumanPlayerButtons[i]);
-                numOfHumanPlayerButtons[i].setActionCommand((i)+"");
-                numOfHumanPlayerButtons[i].setFont(font);
-            }
-
-            numOfPlayerButtons[3].setSelected(true);
-            numOfHumanPlayerButtons[1].setSelected(true);
+            add(selectPanel);
 
             startButton = new JButton("start");
             add(startButton);
@@ -132,19 +111,40 @@ public class GameModeWindow implements KeyListener{
                     frame.getContentPane().add(gamePanel);
                     gamePanel.setVisible(true);
 
-                    int nop = Integer.parseInt(numOfPlayerButtonGroup.getSelection().getActionCommand());
-                    int noh = Integer.parseInt(numOfHumanPlayerButtonGroup.getSelection().getActionCommand());
-                    String[] commands = new String[nop];
-                    String[] defaultCommands = new String[3]; 
-                    defaultCommands[0] = "./ai_programs/TronBattle対戦用プログラム/P_mucchin";
-                    defaultCommands[1] = "./ai_programs/TronBattle対戦用プログラム/P_masayo16";
-                    for(int i = 0; i < noh; i++) {
-                        commands[i] = "-human";
+                    String[] select = new String[maxPlayer];
+                    for(int i = 0; i < maxPlayer; i++) {
+                        select[i] = (String)(playProgramSelect[i].getSelectedItem());
                     }
-                    for(int i = noh; i<nop; i++) {
-                        commands[i] = defaultCommands[i-noh];
+
+                    List<String> commandList = new ArrayList<>();
+                    for(int i = 0; i < maxPlayer; i++) {
+                        if("なし".equals(select[i])) {
+                            continue;
+                        }
+                        switch(select[i]) {
+                            case "人間":
+                                commandList.add("-human");
+                                break;
+                            case "legend":
+                                commandList.add("./ai_programs//P_Python");
+                                break;
+                            case "mucchin":
+                                commandList.add("./ai_programs/P_mucchin");
+                                break;
+                            case "直進":
+                                commandList.add("java -classpath java/src/ ac.a14ehsr.sample_ai.Ai_Straight");
+                                break;
+                            case "時計周り":
+                                commandList.add("java -classpath java/src/ ac.a14ehsr.sample_ai.Ai_Clockwise");
+                            break;
+                            case "ランダム":
+                                commandList.add("java -classpath java/src/ ac.a14ehsr.sample_ai.Ai_Random");
+                            break;
+                        }
                     }
-                    Thread th = new Thread(new GamePlatform(nop, commands, gamePanel, frame));
+
+                    String[] commands = (String[])commandList.toArray(new String[commandList.size()]);
+                    Thread th = new Thread(new GamePlatform(commands.length, commands, gamePanel, frame));
                     th.start();
                     frame.validate();
                     gamePanel.validate();

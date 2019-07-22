@@ -118,7 +118,7 @@ public class Visualizer extends JPanel {
     }
 
     public void setBorder(int x, int y, Color color, int size) {
-        System.err.println(x+"," + y + "の色を"+color+"に変更しました");
+        //System.err.println(x+"," + y + "の色を"+color+"に変更しました");
         if(x==-1) return;
         panels[y][x].setBorder(new LineBorder(color, size));
     }
@@ -133,7 +133,7 @@ public class Visualizer extends JPanel {
         panels[y][x].repaint();
         if(isGMW) {
 
-            cdp = new CountDownBarPanel(300,200);
+            cdp = new CountDownBarPanel(getWidth(),200);
             this.add(cdp, BorderLayout.SOUTH);   
             (th = new Thread(cdp)).start();
             cdp.validate();
